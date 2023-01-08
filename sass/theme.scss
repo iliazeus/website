@@ -37,10 +37,15 @@ a > code {
   color: var(--primary);
 }
 
+main figure,
 main img {
   display: block;
   margin-left: auto;
   margin-right: auto;
+  text-align: center;
+}
+
+figure.border  img:not(figcaption) {
   border: 1px solid var(--color);
   border-radius: var(--border-radius);
 }
