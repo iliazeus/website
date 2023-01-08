@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="{{ page.extra.lang | default(value=page.lang) }}">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <link rel="stylesheet" href="https://code.cdn.mozilla.net/fonts/fira.css">
+    <link rel="stylesheet" href="/pico-1.5.6-classless.min.css" />
+
+    <!-- prettier-ignore -->
+    <noscript><style>/* prettier-ignore */ .if-js { display: none }</style></noscript>
+
+    <script src="/theme.js"></script>
+    <link rel="stylesheet" href="/theme.css" />
+
+    <title>{{ page.title }} | iliazeus</title>
+  </head>
+
+  <body>
+    <main>
+      <span aria-hidden="true" style="position: relative">
+        <span
+          class="if-js"
+          style="position: absolute; right: 1em; top: 2em"
+          onclick="toggleTheme()"
+          id="theme-toggle"
+          title="toggle theme"
+        ></span>
+      </span>
+
+      <hgroup>
+        <h1><a href="/" title="main page">iliazeus</a></h1>
+        <h6>илья, иль не я</h6>
+      </hgroup>
+
+      <hgroup>
+        <h2>{{ page.title }}</h2>
+        <h6>
+          <ul class="title-meta">
+            <li>{{ page.date }}</li>
+            <li>{{ page.extra.lang }}</li>
+            {% for link in page.extra.links %}
+            <li><a href="{{ link.href }}" {% if link.rel %} rel="{{ link.rel }}" {% endif %}>{{ link.text }}</a></li>
+            {% endfor %}
+          </ul>
+        </h6>
+      </hgroup>
+
+      {{ page.content | safe }}
+
+      <nav>
+        <small>
+          <ul>
+            <li><a rel="me" href="https://github.com/iliazeus">github</a></li>
+            <li><a rel="me" href="https://habr.com/users/iliazeus">habr</a></li>
+            <li><a rel="me" href="https://monkeytype.com/profile/iliazeus">mokeytype</a></li>
+            <li><a rel="me" href="https://lor.sh/@iliazeus">mastodon</a></li>
+            <li><a rel="me" href="mailto:ilia.pozdnyakov@ya.ru">mailto</a></li>
+          </ul>
+        </small>
+      </nav>
+    </main>
+  </body>
+</html>

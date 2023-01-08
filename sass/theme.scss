@@ -1,0 +1,58 @@
+#theme-toggle {
+  cursor: pointer;
+}
+
+:root[data-theme="light"] #theme-toggle::before {
+  content: "🌑";
+}
+
+:root[data-theme="dark"] #theme-toggle::before {
+  content: "☀️";
+}
+
+h1 a,
+h1 a:visited {
+  color: inherit;
+}
+
+:root[data-theme="light"] {
+  @import "../static/syntax-light";
+}
+
+:root[data-theme="dark"] {
+  @import "../static/syntax-dark";
+}
+
+pre > code {
+  border: 1px solid var(--color);
+  font-family: "Fira Code", "Fira Mono", "Courier New", Courier, monospace;
+  font-weight: 500;
+}
+
+:not(pre) > code {
+  padding: 0 0.2em;
+}
+
+a > code {
+  color: var(--primary);
+}
+
+main img {
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+  border: 1px solid var(--color);
+  border-radius: var(--border-radius);
+}
+
+ul.title-meta {
+  padding: inherit;
+
+  li {
+    display: inline;
+    list-style: none;
+    &:not(:first-child)::before {
+      content: " · ";
+    }
+  }
+}
