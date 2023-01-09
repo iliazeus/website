@@ -10,7 +10,6 @@ else if (prefersLight) theme = "light";
 else if (prefersDark) theme = "dark";
 
 document.documentElement.dataset.theme = theme;
-window.sessionStorage.setItem("theme", theme);
 
 var toggleTheme = () => {
   const current = document.documentElement.dataset.theme;
