@@ -45,7 +45,7 @@ main img {
   text-align: center;
 }
 
-figure.border  img:not(figcaption) {
+figure.border img:not(figcaption) {
   border: 1px solid var(--color);
   border-radius: var(--border-radius);
 }
@@ -60,4 +60,8 @@ ul.title-meta {
       content: " · ";
     }
   }
+}
+
+blockquote > p {
+  margin-bottom: 0;
 }
