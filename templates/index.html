@@ -38,6 +38,9 @@
         <h6>илья, иль не я</h6>
       </hgroup>
 
+      <p>I do TypeScript, Python, Rust, and weird stuff.</p>
+      <p>I sometimes write articles, or translate articles written by others.</p>
+
       {% for subsection_path in section.subsections %}
         {% set subsection = get_section(path=subsection_path) %}
         <h3 style="margin-bottom: inherit;">{{ subsection.title }}</h3>
@@ -68,8 +71,8 @@
         </ul>
       </hgroup>
 
-      <nav>
-        <small>
+      <small>
+        <nav>
           <ul>
             <li><a rel="me" href="https://github.com/iliazeus">github</a></li>
             <li><a rel="me" href="https://habr.com/users/iliazeus">habr</a></li>
@@ -77,8 +80,10 @@
             <li><a rel="me" href="https://lor.sh/@iliazeus">mastodon</a></li>
             <li><a rel="me" href="mailto:ilia.pozdnyakov@ya.ru">mailto</a></li>
           </ul>
-        </small>
-      </nav>
+        </nav>
+
+        <p>made with <a href="https://www.getzola.org/">Zola</a> and <a href="https://picocss.com/">Pico.css</a></p>
+      </small>
     </main>
   </body>
 </html>
