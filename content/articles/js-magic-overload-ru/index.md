@@ -6,8 +6,8 @@ extra:
   lang: ru
   links:
     - rel: license
-      text: CC BY-SA 3.0
-      href: https://creativecommons.org/licenses/by-sa/3.0/
+      text: CC BY-SA 4.0
+      href: https://creativecommons.org/licenses/by-sa/4.0/
     - rel: alternate
       text: habr
       href: https://habr.com/ru/post/658629/
