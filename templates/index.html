@@ -9,7 +9,12 @@
     <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
     <link rel="manifest" href="/site.webmanifest">
 
-    <link rel="stylesheet" href="https://code.cdn.mozilla.net/fonts/fira.css">
+    <link
+      rel="preload" as="style"
+      href="https://code.cdn.mozilla.net/fonts/fira.css"
+      onload="this.onload=null;this.rel='stylesheet'"
+    />
+
     <link rel="stylesheet" href="/pico-1.5.6-classless.min.css" />
 
     <!-- prettier-ignore -->
