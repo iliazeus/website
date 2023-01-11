@@ -18,7 +18,11 @@
     <link rel="stylesheet" href="/pico-1.5.6-classless.min.css" />
 
     <!-- prettier-ignore -->
-    <noscript><style>/* prettier-ignore */ .if-js { display: none }</style></noscript>
+    <style>.if-not-js { display: none !important }</style>
+    <noscript><style>
+      .if-js { display: none !important }
+      .if-not-js { display: unset !important }
+    </style></noscript>
 
     <script src="/theme.js"></script>
     <link rel="stylesheet" href="/theme.css" />

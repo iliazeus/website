@@ -5,11 +5,11 @@
 }
 
 :root[data-theme="light"] #theme-toggle {
-  background: url(icons/new-moon.svg);
+  background: url(/icons/new-moon.svg);
 }
 
 :root[data-theme="dark"] #theme-toggle {
-  background: url(icons/sun.svg);
+  background: url(/icons/sun.svg);
 }
 
 h1 a,
@@ -69,4 +69,22 @@ ul.title-meta {
 
 blockquote > p {
   margin-bottom: 0;
+}
+
+.lego-3d {
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+  text-align: center;
+  max-width: 640px;
+
+  .online_3d_viewer {
+    height: auto;
+    aspect-ratio: 4 / 3;
+  }
+}
+
+a[download] {
+  background-image: url(/icons/document.svg);
+  padding-left: 32px;
 }
