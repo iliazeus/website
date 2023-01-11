@@ -23,18 +23,18 @@
 
   <body>
     <main>
-      <span aria-hidden="true" style="position: relative">
-        <span
-          class="if-js"
-          style="position: absolute; right: 1em; top: 2em"
-          onclick="toggleTheme()"
-          id="theme-toggle"
-          title="toggle theme"
-        ></span>
-      </span>
-
       <hgroup>
-        <h1><a href="/" title="main page">iliazeus</a></h1>
+        <h1 style="position: relative">
+            <span
+              aria-hidden="true"
+              class="if-js"
+              style="position: absolute; top: 0.3em; left: -1.5em;"
+              onclick="toggleTheme()"
+              id="theme-toggle"
+              title="toggle theme"
+            ></span>
+          <a href="/" title="main page">iliazeus</a>
+        </h1>
         <h6>илья, иль не я</h6>
       </hgroup>
 
@@ -82,7 +82,11 @@
           </ul>
         </nav>
 
-        <p>made with <a href="https://www.getzola.org/">Zola</a> and <a href="https://picocss.com/">Pico.css</a></p>
+        <p>
+          made with <a href="https://www.getzola.org/">Zola</a>,
+          <a href="https://picocss.com/">Pico.css</a>,
+          and some <a href="https://twemoji.twitter.com/">Twemoji</a>
+        </p>
       </small>
     </main>
   </body>

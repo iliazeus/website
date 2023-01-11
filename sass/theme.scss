@@ -1,13 +1,15 @@
 #theme-toggle {
   cursor: pointer;
+  width: 32px;
+  height: 32px;
 }
 
-:root[data-theme="light"] #theme-toggle::before {
-  content: "🌑";
+:root[data-theme="light"] #theme-toggle {
+  background: url(icons/new-moon.svg);
 }
 
-:root[data-theme="dark"] #theme-toggle::before {
-  content: "☀️";
+:root[data-theme="dark"] #theme-toggle {
+  background: url(icons/sun.svg);
 }
 
 h1 a,
