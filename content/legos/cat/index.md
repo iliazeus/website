@@ -14,10 +14,7 @@ This black-and-white cat was built using parts from the [Bricks and Wheels set].
 
 [Bricks and Wheels set]: https://brickset.com/sets/11014-1/Bricks-and-Wheels
 
-{{ lego_3d(model="cat.mtl, texture-eye.png, cat.obj") }}
-
-3D model files: <a href="cat.obj" download>cat.obj</a>, <a href="cat.mtl" download>cat.mtl</a>,
-<a href="texture-eye.png" download>texture-eye.png</a>.
+{{ lego_3d(model="cat.zmbx") }}
 
 [Mecabricks] model: <a href="cat.zmbx" download>cat.zmbx</a>.
 

@@ -14,9 +14,7 @@ This little blue bus was built using parts from the [Bricks and Wheels set].
 
 [Bricks and Wheels set]: https://brickset.com/sets/11014-1/Bricks-and-Wheels
 
-{{ lego_3d(model="micro-bus.mtl, micro-bus.obj") }}
-
-3D model files: <a href="micro-bus.obj" download>micro-bus.obj</a>, <a href="micro-bus.mtl" download>micro-bus.mtl</a>.
+{{ lego_3d(model="micro-bus.zmbx") }}
 
 [Mecabricks] model: <a href="micro-bus.zmbx" download>micro-bus.zmbx</a>.
 

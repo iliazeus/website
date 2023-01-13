@@ -14,10 +14,7 @@ These duckies were built using parts from the [Bricks and Wheels set].
 
 [Bricks and Wheels set]: https://brickset.com/sets/11014-1/Bricks-and-Wheels
 
-{{ lego_3d(model="ducks.mtl, texture-eye.png, ducks.obj") }}
-
-3D model files: <a href="ducks.obj" download>ducks.obj</a>, <a href="ducks.mtl" download>ducks.mtl</a>,
-<a href="texture-eye.png" download>texture-eye.png</a>.
+{{ lego_3d(model="ducks.zmbx") }}
 
 [Mecabricks] model: <a href="ducks.zmbx" download>ducks.zmbx</a>.
 

@@ -4,7 +4,13 @@
     class="online_3d_viewer"
     {% if poster %} style="background: url({{ poster }}) center/100%" {% endif %}
   ></div>
-  <div class="if-js"><small>model preview powered by <a href="https://github.com/kovacsv/Online3DViewer">Online 3D Viewer</a></small></div>
+
+  <div class="if-js"><small>
+    model preview powered by <a href="https://github.com/iliazeus/Online3DViewer">my fork</a>
+    of <a href="https://github.com/kovacsv/Online3DViewer">Online 3D Viewer</a>,
+    <br /> using my <a href="https://github.com/iliazeus/zmbx2gltf">Mecabricks-to-GlTF converter</a>
+  </small></div>
+
   <div class="if-not-js"><small>Enable JavaScript for interactive 3D model preview.</small></div>
 </div>
 
@@ -20,6 +26,11 @@
       {
         edgeSettings: new OV.EdgeSettings(true, new OV.RGBColor(0, 0, 0), 32),
         backgroundColor: new OV.RGBAColor(0, 0, 0, 0),
+        environmentSettings: new OV.EnvironmentSettings([
+          "/envmaps/citadella/posx.jpg", "/envmaps/citadella/negx.jpg",
+          "/envmaps/citadella/posy.jpg", "/envmaps/citadella/negy.jpg",
+          "/envmaps/citadella/posz.jpg", "/envmaps/citadella/negz.jpg",
+        ]),
         onModelLoaded: () => {
           element.style.background = null;
           element.style.cursor = "grab";

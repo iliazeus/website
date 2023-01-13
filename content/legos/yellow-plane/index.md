@@ -14,9 +14,7 @@ This plane bus was built using parts from the [Bricks and Wheels set].
 
 [Bricks and Wheels set]: https://brickset.com/sets/11014-1/Bricks-and-Wheels
 
-{{ lego_3d(model="yellow-plane.mtl, yellow-plane.obj") }}
-
-3D model files: <a href="yellow-plane.obj" download>yellow-plane.obj</a>, <a href="yellow-plane.mtl" download>yellow-plane.mtl</a>.
+{{ lego_3d(model="yellow-plane.zmbx") }}
 
 [Mecabricks] model: <a href="yellow-plane.zmbx" download>yellow-plane.zmbx</a>.
 
