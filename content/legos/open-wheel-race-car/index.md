@@ -15,7 +15,3 @@ This race car was built using parts from the [Bricks and Wheels set].
 [Bricks and Wheels set]: https://brickset.com/sets/11014-1/Bricks-and-Wheels
 
 {{ lego_3d(model="open-wheel-race-car.zmbx") }}
-
-[Mecabricks] model: <a href="open-wheel-race-car.zmbx" download>open-wheel-race-car.zmbx</a>.
-
-[Mecabricks]: https://www.mecabricks.com/

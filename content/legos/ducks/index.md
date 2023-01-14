@@ -15,7 +15,3 @@ These duckies were built using parts from the [Bricks and Wheels set].
 [Bricks and Wheels set]: https://brickset.com/sets/11014-1/Bricks-and-Wheels
 
 {{ lego_3d(model="ducks.zmbx") }}
-
-[Mecabricks] model: <a href="ducks.zmbx" download>ducks.zmbx</a>.
-
-[Mecabricks]: https://www.mecabricks.com/

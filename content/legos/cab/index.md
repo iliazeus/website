@@ -15,7 +15,3 @@ This little cabby was built using parts from the [Bricks and Wheels set].
 [Bricks and Wheels set]: https://brickset.com/sets/11014-1/Bricks-and-Wheels
 
 {{ lego_3d(model="cab.zmbx") }}
-
-[Mecabricks] model: <a href="cab.zmbx" download>cab.zmbx</a>.
-
-[Mecabricks]: https://www.mecabricks.com/

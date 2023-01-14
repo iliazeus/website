@@ -15,7 +15,3 @@ This motor scooter was built using parts from the [Bricks and Wheels set].
 [Bricks and Wheels set]: https://brickset.com/sets/11014-1/Bricks-and-Wheels
 
 {{ lego_3d(model="vespa.zmbx") }}
-
-[Mecabricks] model: <a href="vespa.zmbx" download>vespa.zmbx</a>.
-
-[Mecabricks]: https://www.mecabricks.com/
