@@ -30,11 +30,14 @@
     new Promise((cb) => zmbx2gltfScript.onload = cb),
   ]).then(async () => {
     const zmbxBlob = await (await fetch("{{ model }}")).blob();
+    const zmbxFileName = "{{ model }}".split("/").pop();
+
     const gltf = await convertZmbxToGltf(zmbxBlob);
-    const gltfFile = new File([JSON.stringify(gltf)], "model.gltf");
+    const gltfFileName = zmbxFileName.replace(".zmbx", ".gltf");
+    const gltfFile = new File([JSON.stringify(gltf)], gltfFileName);
 
     downloadGltfLink.href = URL.createObjectURL(gltfFile);
-    downloadGltfLink.filename = "model.gltf";
+    downloadGltfLink.filename = gltfFileName;
 
     const element = document.getElementById("3d-{{ model | slugify }}");
 
