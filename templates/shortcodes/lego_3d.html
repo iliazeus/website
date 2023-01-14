@@ -6,23 +6,41 @@
   ></div>
 
   <div class="if-js"><small>
-    model preview powered by <a href="https://github.com/iliazeus/Online3DViewer">my fork</a>
-    of <a href="https://github.com/kovacsv/Online3DViewer">Online 3D Viewer</a>,
+    model preview powered by <a href="https://github.com/kovacsv/Online3DViewer">Online 3D Viewer</a>,
     <br /> using my <a href="https://github.com/iliazeus/zmbx2gltf">Mecabricks-to-GlTF converter</a>
   </small></div>
 
-  <div class="if-not-js"><small>Enable JavaScript for interactive 3D model preview.</small></div>
+  <div class="if-not-js"><small>Enable JavaScript for interactive 3D model preview and GlTF download.</small></div>
+
+  <div>
+    <small>download: <a href="{{ model }}" download>zmbx (Mecabricks)</a><span class="if-js">,
+    <a id="download-gltf" download>GlTF</a></span>.</small>
+  </div>
 </div>
 
-<script id="o3dv-script" src="/o3dv-0.8.20.min.js" async></script>
+<script id="zmbx2gltf-script" src="/zmbx2gltf-0.1.4.bundle.js" async></script>
+<script id="o3dv-script" src="/o3dv-0.8.21.min.js" async></script>
 <script>
-  const script = document.getElementById("o3dv-script");
-  script.onload = () => {
+  const o3dvScript = document.getElementById("o3dv-script");
+  const zmbx2gltfScript = document.getElementById("zmbx2gltf-script");
+  const downloadGltfLink = document.getElementById("download-gltf");
+
+  Promise.all([
+    new Promise((cb) => o3dvScript.onload = cb),
+    new Promise((cb) => zmbx2gltfScript.onload = cb),
+  ]).then(async () => {
+    const zmbxBlob = await (await fetch("{{ model }}")).blob();
+    const gltf = await convertZmbxToGltf(zmbxBlob);
+    const gltfFile = new File([JSON.stringify(gltf)], "model.gltf");
+
+    downloadGltfLink.href = URL.createObjectURL(gltfFile);
+    downloadGltfLink.filename = "model.gltf";
+
     const element = document.getElementById("3d-{{ model | slugify }}");
 
-    const embeddedViewer = OV.Init3DViewerElement(
+    const embeddedViewer = OV.Init3DViewerElementFromFileList(
       element,
-      "{{ model }}".split(",").map(s => s.trim()),
+      [gltfFile],
       {
         edgeSettings: new OV.EdgeSettings(true, new OV.RGBColor(0, 0, 0), 32),
         backgroundColor: new OV.RGBAColor(0, 0, 0, 0),
@@ -39,5 +57,5 @@
     );
 
     window["3d-{{ model | slugify }}"] = embeddedViewer;
-  };
+  });
 </script>
