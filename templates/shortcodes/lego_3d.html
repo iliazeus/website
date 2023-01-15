@@ -2,8 +2,8 @@
   <div
     id="3d-{{ model | slugify }}"
     class="online_3d_viewer"
-    {% if poster %} style="background: url({{ poster }}) center/100%" {% endif %}
-  ></div>
+    {% if poster %} style="background: no-repeat center/100% url({{ poster }})" {% endif %}
+  >Loading model...</div>
 
   <div class="if-js"><small>
     model preview powered by <a href="https://github.com/kovacsv/Online3DViewer">Online 3D Viewer</a>,
@@ -40,6 +40,7 @@
     downloadGltfLink.filename = gltfFileName;
 
     const element = document.getElementById("3d-{{ model | slugify }}");
+    element.replaceChildren();
 
     const embeddedViewer = OV.Init3DViewerElementFromFileList(
       element,
