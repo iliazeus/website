@@ -14,4 +14,4 @@ This black-and-white cat was built using parts from the [Bricks and Wheels set].
 
 [Bricks and Wheels set]: https://brickset.com/sets/11014-1/Bricks-and-Wheels
 
-{{ lego_3d(model="cat.zmbx") }}
+{{ lego_3d(model="cat.zmbx", poster="cat.png") }}
