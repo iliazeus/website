@@ -1,0 +1,44 @@
+<p id="punkomatic-div-{{ slug }}">loading punkomatic-js...</p>
+
+<p class="if-not-js">Enable JavaScript to download or listen to the song.</p>
+
+<pre><code>{{ body | safe }}</code></pre>
+
+<!-- <script async id="punkomatic-script" src="/punkomatic-0.1.0.bundle.js"></script> -->
+<script>
+  (async () => {
+    const punkomaticDiv = document.getElementById("punkomatic-div-{{ slug }}");
+
+    let punkomaticScript = document.getElementById("punkomatic-script");
+    if (!punkomaticScript) {
+      punkomaticScript = Object.assign(document.createElement("script"), {
+        id: "punkomatic-script",
+        async: true,
+        src: "/punkomatic-0.1.0.bundle.js",
+      });
+      document.body.appendChild(punkomaticScript);
+      await new Promise((cb) => (punkomaticScript.onload = cb));
+    }
+
+    const renderButton = document.createElement("button");
+    renderButton.style.maxWidth = "360px";
+    renderButton.innerText = "Play or download";
+    renderButton.onclick = async () => {
+      const blob = await renderSongInBrowser({
+        songData: "{{ body | safe }}",
+        sampleBaseUrl: "/punkomatic-samples/",
+        log: (text, progress) =>
+          (punkomaticDiv.innerText = progress
+            ? `${text} (${progress.current}/${progress.total})`
+            : text),
+      });
+
+      const url = URL.createObjectURL(blob);
+      punkomaticDiv.innerHTML = `
+        <audio controls src="${url}"></audio>
+        <a download href="${url}" filename="{{ slug }}.wav">Download WAV</a>
+      `;
+    };
+    punkomaticDiv.replaceChildren(renderButton);
+  })();
+</script>
