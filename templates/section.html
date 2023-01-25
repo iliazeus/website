@@ -27,7 +27,7 @@
     <script src="/theme.js"></script>
     <link rel="stylesheet" href="/theme.css" />
 
-    <title>iliazeus</title>
+    <title>{{ section.title }} | iliazeus</title>
   </head>
 
   <body>
@@ -47,42 +47,24 @@
         <h6>илья, иль не я</h6>
       </hgroup>
 
-      <p>I do TypeScript, Python, Rust, and weird stuff.</p>
-      <p>I sometimes write articles, or translate articles written by others.</p>
+      <h2>{{ section.title }}</h2>
 
-      {% for subsection_path in section.subsections %}
-        {% set subsection = get_section(path=subsection_path) %}
-        {% if subsection.extra.show_on_main | default(value="pages") == "link" %}
-        <h3><a href="{{ subsection.path }}">{{ subsection.title }}</a></h3>
-        {% else %}
-          <h3 style="margin-bottom: inherit;">{{ subsection.title }}</h3>
-          {% for page in subsection.pages %}
-            <hgroup>
-              <h4><a href="{{ page.path }}">{{ page.title }}</a></h4>
-              <h6>
-                <ul class="title-meta">
-                  <li>{{ page.date }}</li>
-                  <li>{{ page.extra.lang }}</li>
-                  {% for link in page.extra.links %}
-                  <li><a href="{{ link.href }}" {% if link.rel %} rel="{{ link.rel }}" {% endif %}>{{ link.text }}</a></li>
-                  {% endfor %}
-                </ul>
-              </h6>
-            </hgroup>
-          {% endfor %}
-        {% endif %}
+      {{ section.content | safe }}
+
+      {% for page in section.pages %}
+        <hgroup>
+          <h4><a href="{{ page.path }}">{{ page.title }}</a></h4>
+          <h6>
+            <ul class="title-meta">
+              <li>{{ page.date }}</li>
+              <li>{{ page.extra.lang }}</li>
+              {% for link in page.extra.links %}
+              <li><a href="{{ link.href }}" {% if link.rel %} rel="{{ link.rel }}" {% endif %}>{{ link.text }}</a></li>
+              {% endfor %}
+            </ul>
+          </h6>
+        </hgroup>
       {% endfor %}
-
-      <hgroup>
-        <h3>links</h3>
-        <ul>
-          <li>github: <a rel="me" href="https://github.com/iliazeus">@iliazeus</a></li>
-          <li>habr: <a rel="me" href="https://habr.com/users/iliazeus">@iliazeus</a></li>
-          <li>monkeytype: <a rel="me" href="https://monkeytype.com/profile/iliazeus">@iliazeus</a></li>
-          <li>mastodon: <a rel="me" href="https://lor.sh/@iliazeus">@iliazeus@lor.sh</a></li>
-          <li>mailto: <a rel="me" href="mailto:ilia.pozdnyakov@ya.ru">ilia.pozdnyakov@ya.ru</a></li>
-        </ul>
-      </hgroup>
 
       <small>
         <nav>
