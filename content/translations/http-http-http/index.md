@@ -1,6 +1,7 @@
 ---
 title: http://http://http://@http://http://?http://#http://
 date: 2022-09-09
+description: да что вообще такое этот ваш URL?
 
 extra:
   lang: ru

@@ -1,6 +1,7 @@
 ---
 title: Как (и зачем) я писал README в Jupyter-ноутбуке для Node.js-приложения
 date: 2022-12-23
+description: или как залить Python-пакет в NPM
 
 extra:
   lang: ru

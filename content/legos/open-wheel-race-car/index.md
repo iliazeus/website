@@ -1,6 +1,7 @@
 ---
 title: open-wheel race car
 date: 2023-01-11
+description: race car built using parts from the Bricks and Wheels set
 
 extra:
   lang: en

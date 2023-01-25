@@ -1,6 +1,7 @@
 ---
 title: Сорта элементов (element kinds) в движке V8
 date: 2020-11-20
+description: оптимизации массивов с динамической типизацией
 
 extra:
   lang: ru

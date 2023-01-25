@@ -1,6 +1,7 @@
 ---
 title: Настоящая* перегрузка операторов в JavaScript
 date: 2022-04-01
+description: Magic.overload(a + b - c)
 
 extra:
   lang: ru

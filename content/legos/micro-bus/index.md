@@ -1,6 +1,7 @@
 ---
 title: micro bus
 date: 2023-01-11
+description: little blue bus built using parts from the Bricks and Wheels set
 
 extra:
   lang: en
