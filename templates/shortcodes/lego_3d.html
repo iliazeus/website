@@ -14,7 +14,7 @@
 
   <div>
     <small>download: <a href="{{ model }}" download>zmbx (Mecabricks)</a><span class="if-js">,
-    <a id="download-gltf-{{ model | slugify }}" download>glTF</a></span>.</small>
+    <a style="cursor: pointer" id="download-gltf-{{ model | slugify }}" download>glTF</a></span>.</small>
   </div>
 </figure>
 
@@ -24,10 +24,17 @@
     const viewerElement = document.getElementById("3d-{{ model | slugify }}");
 
     viewerElement.style.cursor = "pointer";
-    viewerElement.innerText = "Click the image to view the 3D model.";
+    viewerElement.innerText = "Click the image to load and view the 3D model.";
 
-    viewerElement.onclick = async () => {
+    viewerElement.onclick = initViewer;
+    downloadGltfLink.onclick = async () => {
+      await initViewer();
+      downloadGltfLink.click();
+    };
+
+    async function initViewer() {
       viewerElement.onclick = null;
+      downloadGltfLink.onclick = null;
 
       viewerElement.innerText = "Loading scripts...";
 
