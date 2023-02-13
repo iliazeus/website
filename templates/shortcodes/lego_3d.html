@@ -1,9 +1,9 @@
-<div class="lego-3d">
+<figure class="lego-3d border">
   <div
     id="3d-{{ model | slugify }}"
     class="online_3d_viewer"
-    {% if poster %} style="background: no-repeat center/100% url({{ poster }})" {% endif %}
-  >Loading model...</div>
+    {% if poster %} style="cursor: pointer; background: no-repeat center/100% url({{ poster }})" {% endif %}
+  ></div>
 
   <div class="if-js"><small>
     model preview powered by <a href="https://github.com/kovacsv/Online3DViewer">Online 3D Viewer</a>,
@@ -14,52 +14,80 @@
 
   <div>
     <small>download: <a href="{{ model }}" download>zmbx (Mecabricks)</a><span class="if-js">,
-    <a id="download-gltf" download>glTF</a></span>.</small>
+    <a id="download-gltf-{{ model | slugify }}" download>glTF</a></span>.</small>
   </div>
-</div>
+</figure>
 
-<script id="zmbx2gltf-script" src="/zmbx2gltf-0.1.5.bundle.js" async></script>
-<script id="o3dv-script" src="/o3dv-0.8.21.min.js" async></script>
 <script>
-  const o3dvScript = document.getElementById("o3dv-script");
-  const zmbx2gltfScript = document.getElementById("zmbx2gltf-script");
-  const downloadGltfLink = document.getElementById("download-gltf");
+  (() => {
+    const downloadGltfLink = document.getElementById("download-gltf-{{ model | slugify }}");
+    const viewerElement = document.getElementById("3d-{{ model | slugify }}");
 
-  Promise.all([
-    new Promise((cb) => o3dvScript.onload = cb),
-    new Promise((cb) => zmbx2gltfScript.onload = cb),
-  ]).then(async () => {
-    const zmbxBlob = await (await fetch("{{ model }}")).blob();
-    const zmbxFileName = "{{ model }}".split("/").pop();
+    viewerElement.style.cursor = "pointer";
+    viewerElement.innerText = "Click the image to view the 3D model.";
 
-    const gltf = await convertZmbxToGltf(zmbxBlob);
-    const gltfFileName = zmbxFileName.replace(".zmbx", ".gltf");
-    const gltfFile = new File([JSON.stringify(gltf)], gltfFileName);
+    viewerElement.onclick = async () => {
+      viewerElement.onclick = null;
 
-    downloadGltfLink.href = URL.createObjectURL(gltfFile);
-    downloadGltfLink.filename = gltfFileName;
+      viewerElement.innerText = "Loading scripts...";
 
-    const element = document.getElementById("3d-{{ model | slugify }}");
-    element.replaceChildren();
+      let o3dvScript = document.getElementById("o3dv-script");
+      let zmbx2gltfScript = document.getElementById("zmbx2gltf-script");
 
-    const embeddedViewer = OV.Init3DViewerElementFromFileList(
-      element,
-      [gltfFile],
-      {
-        edgeSettings: new OV.EdgeSettings(true, new OV.RGBColor(0, 0, 0), 32),
-        backgroundColor: new OV.RGBAColor(0, 0, 0, 0),
-        environmentSettings: new OV.EnvironmentSettings([
-          "/envmaps/citadella/posx.jpg", "/envmaps/citadella/negx.jpg",
-          "/envmaps/citadella/posy.jpg", "/envmaps/citadella/negy.jpg",
-          "/envmaps/citadella/posz.jpg", "/envmaps/citadella/negz.jpg",
-        ]),
-        onModelLoaded: () => {
-          element.style.background = null;
-          element.style.cursor = "grab";
+      await Promise.all([
+        o3dvScript || new Promise((cb) => {
+          o3dvScript = Object.assign(document.createElement("script"), {
+            id: "o3dv-script",
+            async: true,
+            src: "/o3dv-0.8.21.min.js",
+          });
+          o3dvScript.onload = cb;
+          document.body.appendChild(o3dvScript);
+        }),
+        zmbx2gltfScript || new Promise((cb) => {
+          zmbx2gltfScript = Object.assign(document.createElement("script"), {
+            id: "zmbx2gltf-script",
+            async: true,
+            src: "/zmbx2gltf-0.1.5.bundle.js",
+          });
+          zmbx2gltfScript.onload = cb;
+          document.body.appendChild(zmbx2gltfScript);
+        }),
+      ]);
+
+      viewerElement.innerText = "Loading model...";
+
+      const zmbxBlob = await (await fetch("{{ model }}")).blob();
+      const zmbxFileName = "{{ model }}".split("/").pop();
+
+      const gltf = await convertZmbxToGltf(zmbxBlob);
+      const gltfFileName = zmbxFileName.replace(".zmbx", ".gltf");
+      const gltfFile = new File([JSON.stringify(gltf)], gltfFileName);
+
+      downloadGltfLink.href = URL.createObjectURL(gltfFile);
+      downloadGltfLink.filename = gltfFileName;
+
+      viewerElement.replaceChildren();
+
+      const embeddedViewer = OV.Init3DViewerElementFromFileList(
+        viewerElement,
+        [gltfFile],
+        {
+          edgeSettings: new OV.EdgeSettings(true, new OV.RGBColor(0, 0, 0), 32),
+          backgroundColor: new OV.RGBAColor(0, 0, 0, 0),
+          environmentSettings: new OV.EnvironmentSettings([
+            "/envmaps/citadella/posx.jpg", "/envmaps/citadella/negx.jpg",
+            "/envmaps/citadella/posy.jpg", "/envmaps/citadella/negy.jpg",
+            "/envmaps/citadella/posz.jpg", "/envmaps/citadella/negz.jpg",
+          ]),
+          onModelLoaded: () => {
+            viewerElement.style.background = null;
+            viewerElement.style.cursor = "grab";
+          },
         },
-      },
-    );
+      );
 
-    window["3d-{{ model | slugify }}"] = embeddedViewer;
-  });
+      window["3d-{{ model | slugify }}"] = embeddedViewer;
+    };
+  })();
 </script>

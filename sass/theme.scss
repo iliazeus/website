@@ -50,7 +50,7 @@ main img {
   text-align: center;
 }
 
-figure.border img:not(figcaption) {
+figure.border > :first-child:not(figcaption) {
   border: 1px solid var(--color);
   border-radius: var(--border-radius);
 }
