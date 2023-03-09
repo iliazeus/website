@@ -4,7 +4,7 @@
 
 <pre><code>{{ body | safe }}</code></pre>
 
-<!-- <script async id="punkomatic-script" src="/punkomatic-0.2.0.bundle.js"></script> -->
+<!-- <script async id="punkomatic-script" src="/punkomatic-0.2.1.bundle.js"></script> -->
 <script>
   (async () => {
     const punkomaticDiv = document.getElementById("punkomatic-div-{{ slug }}");
@@ -14,7 +14,7 @@
       punkomaticScript = Object.assign(document.createElement("script"), {
         id: "punkomatic-script",
         async: true,
-        src: "/punkomatic-0.2.0.bundle.js",
+        src: "/punkomatic-0.2.1.bundle.js",
       });
       document.body.appendChild(punkomaticScript);
       await new Promise((cb) => (punkomaticScript.onload = cb));
