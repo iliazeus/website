@@ -46,7 +46,7 @@
           o3dvScript = Object.assign(document.createElement("script"), {
             id: "o3dv-script",
             async: true,
-            src: "/o3dv-0.8.21.min.js",
+            src: "/o3dv-0.8.22.min.js",
           });
           o3dvScript.onload = cb;
           document.body.appendChild(o3dvScript);
@@ -55,7 +55,7 @@
           zmbx2gltfScript = Object.assign(document.createElement("script"), {
             id: "zmbx2gltf-script",
             async: true,
-            src: "/zmbx2gltf-0.1.5.bundle.js",
+            src: "/zmbx2gltf-0.2.0.bundle.js",
           });
           zmbx2gltfScript.onload = cb;
           document.body.appendChild(zmbx2gltfScript);
@@ -67,7 +67,7 @@
       const zmbxBlob = await (await fetch("{{ model }}")).blob();
       const zmbxFileName = "{{ model }}".split("/").pop();
 
-      const gltf = await convertZmbxToGltf(zmbxBlob);
+      const gltf = await Zmbx2Gltf.convertZmbxToGltf(zmbxBlob);
       const gltfFileName = zmbxFileName.replace(".zmbx", ".gltf");
       const gltfFile = new File([JSON.stringify(gltf)], gltfFileName);
 
@@ -76,7 +76,7 @@
 
       viewerElement.replaceChildren();
 
-      const embeddedViewer = OV.Init3DViewerElementFromFileList(
+      const embeddedViewer = OV.Init3DViewerFromFileList(
         viewerElement,
         [gltfFile],
         {
