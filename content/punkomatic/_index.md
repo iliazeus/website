@@ -2,7 +2,7 @@
 title: Punk-o-Matic 2 song archive
 description: rip punk-o-matic.net :(
 sort_by: date
-weight: 3
+weight: 4
 render: true
 extra:
   show_on_main: link

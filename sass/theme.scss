@@ -58,6 +58,12 @@ figure.border > :first-child:not(figcaption) {
 ul.title-meta {
   padding: inherit;
 
+  img {
+    display: inline;
+    margin: unset;
+    text-align: unset;
+  }
+
   li {
     display: inline;
     list-style: none;

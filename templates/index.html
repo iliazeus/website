@@ -53,15 +53,34 @@
       {% for subsection_path in section.subsections %}
         {% set subsection = get_section(path=subsection_path) %}
         {% if subsection.extra.show_on_main | default(value="pages") == "link" %}
-        <hgroup>
-          <h3><a href="{{ subsection.path }}">{{ subsection.title }}</a></h3>
-          <h6>{{ subsection.description | default(value="") }}</h6>
-        </hgroup>
+          <hgroup>
+            <h3><a href="{{ subsection.path }}">{{ subsection.title }}</a></h3>
+            <h6>{{ subsection.description | default(value="") }}</h6>
+          </hgroup>
+        {% elif subsection.extra.show_on_main | default(value="pages") == "projects" %}
+          <hgroup>
+            <h3>{{ subsection.title }}</h3>
+            <h6>{{ subsection.description | default(value="") | safe }}</h6>
+          </hgroup>
+          {% for project in subsection.extra.projects %}
+            <hgroup>
+              <h5><a href="{{ project.repository }}">{{ project.name }}</a></h5>
+              <h6>
+                <ul class="title-meta" style="margin-bottom: inherit">
+                  {% for badge in project.badges | default(value=[]) %}
+                    <a title="{{ badge.title }}" href="{{ badge.href }}"><img src="{{ badge.img }}" alt="{{ badge.title }}" /></a>
+                  {% endfor %}
+                </ul>
+                <p>{{ project.description | default(value="") | safe }}</p>
+              </h6>
+            </hgroup>
+          {% endfor %}
         {% else %}
           <hgroup>
             <h3>{{ subsection.title }}</h3>
             <h6>{{ subsection.description | default(value="") }}</h6>
           </hgroup>
+          {{ subsection.content | safe }}
           {% for page in subsection.pages %}
             <hgroup>
               <h5><a href="{{ page.path }}">{{ page.title }}</a></h5>
