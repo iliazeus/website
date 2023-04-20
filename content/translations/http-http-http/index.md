@@ -11,7 +11,7 @@ extra:
       href: https://daniel.haxx.se/blog/2022/09/08/http-http-http-http-http-http-http/
     - rel: alternate
       text: habr
-      href: https://habr.com/ru/post/687402/
+      href: https://habr.com/ru/articles/687402/
 ---
 
 Пару дней назад я опубликовал этот твит:

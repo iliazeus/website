@@ -11,7 +11,7 @@ extra:
       href: https://creativecommons.org/licenses/by-sa/4.0/
     - rel: alternate
       text: habr
-      href: https://habr.com/ru/post/658629/
+      href: https://habr.com/ru/articles/658629/
 ---
 
 <figure class="border">

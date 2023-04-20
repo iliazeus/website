@@ -11,7 +11,7 @@ extra:
       href: https://www.da.vidbuchanan.co.uk/blog/netflix-on-asahi.html
     - rel: alternate
       text: habr
-      href: https://habr.com/ru/post/721444/
+      href: https://habr.com/ru/articles/721444/
 ---
 
 Год назад я купил макбук. Полгода назад macOS на нем сказала "ой, все", и он окирпичился. Я решил не переустанавливать систему, а попробовать Asahi Linux, и пока что не пожалел об этом. Хотя одна вещь все же раздражала — не работали Netflix и официальное приложение Spotify.

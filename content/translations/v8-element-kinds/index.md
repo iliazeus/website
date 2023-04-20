@@ -11,7 +11,7 @@ extra:
       href: https://v8.dev/blog/elements-kinds
     - rel: alternate
       text: habr
-      href: https://habr.com/ru/post/528940/
+      href: https://habr.com/ru/articles/528940/
 ---
 
 В качестве имени свойства JavaScript-объекта может выступать произвольная строка. Но для некоторых особенных подмножеств имен имеет смысл делать специальные оптимизации в JavaScript-движках. Одним из таких случаев являются числовые [индексы массивов].
