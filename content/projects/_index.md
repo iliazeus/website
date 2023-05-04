@@ -27,7 +27,7 @@ extra:
           href: https://marketplace.visualstudio.com/items?itemName=iliazeus.vscode-ansi
           img: https://img.shields.io/visual-studio-marketplace/stars/iliazeus.vscode-ansi?label=%20&logo=visual-studio-code&style=for-the-badge
     - name: iso2god-rs
-      description: a tool to convert Xbox 360 ISOs into a Games-On-Demand file format
+      description: a command-line tool to convert Xbox 360 ISOs into a Games-On-Demand file format; for Linux, Windows and MacOS
       repository: https://github.com/iliazeus/iso2god-rs
       badges:
         - title: Rust
