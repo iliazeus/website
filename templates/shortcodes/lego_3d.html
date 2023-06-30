@@ -69,7 +69,7 @@
 
       const gltf = await Zmbx2Gltf.convertZmbxToGltf(zmbxBlob);
       const gltfFileName = zmbxFileName.replace(".zmbx", ".gltf");
-      const gltfFile = new File([JSON.stringify(gltf)], gltfFileName);
+      const gltfFile = new File([JSON.stringify(gltf)], gltfFileName, { type: "model/gltf+json" });
 
       downloadGltfLink.href = URL.createObjectURL(gltfFile);
       downloadGltfLink.filename = gltfFileName;
