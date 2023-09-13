@@ -76,5 +76,11 @@
     "valarray": "cpp",
     "variant": "cpp"
   },
-  "cSpell.language": "en,ru"
+  "cSpell.language": "en,ru",
+  "cSpell.words": [
+    "zmbx",
+    "инжинирить",
+    "инстансинг",
+    "меши"
+  ]
 }
