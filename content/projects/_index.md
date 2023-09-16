@@ -65,6 +65,9 @@ extra:
         - title: MIT license
           href: https://github.com/iliazeus/zmbx2gltf
           img: https://img.shields.io/github/license/iliazeus/zmbx2gltf?style=for-the-badge
+        - title: GitHub Stars
+          href: https://github.com/iliazeus/zmbx2gltf
+          img: https://img.shields.io/github/stars/iliazeus/zmbx2gltf?label=stars&logo=star&style=for-the-badge
     - name: punkomatic-js
       description: a Punk-O-Matic 2 song data parser and player; <a href="punkomatic">see in action</a>
       repository: https://github.com/iliazeus/punkomatic-js
