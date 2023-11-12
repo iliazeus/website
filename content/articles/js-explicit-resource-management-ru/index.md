@@ -12,6 +12,9 @@ extra:
     - rel: alternate
       text: habr
       href: https://habr.com/ru/articles/745904/
+    - rel: alternate
+      text: read in english
+      href: /articles/js-explicit-resource-management-en
 ---
 
 Одной из самых интересных грядущих новинок JavaScript и TypeScript для меня является [явное управление ресурсами]. Новый синтаксис `using foobar = ...` реализует идиому [RAII], позволяя писать намного менее многословный код, управляющий какими-либо ресурсами.
