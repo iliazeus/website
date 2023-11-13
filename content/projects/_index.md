@@ -1,5 +1,5 @@
 ---
-title: things I built
+title: some things I built
 description: <a href="https://github.com/iliazeus?tab=repositories">https://github.com/iliazeus</a>
 sort_by: date
 weight: 0

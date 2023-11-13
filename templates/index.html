@@ -77,11 +77,11 @@
           {% endfor %}
         {% else %}
           <hgroup>
-            <h3>{{ subsection.title }}</h3>
+            <h3>recent {{ subsection.title }} (<a href="{{ subsection.path }}">see all</a>)</h3>
             <h6>{{ subsection.description | default(value="") }}</h6>
           </hgroup>
           {{ subsection.content | safe }}
-          {% for page in subsection.pages %}
+          {% for page in subsection.pages | slice(end=5) %}
             <hgroup>
               <h5><a href="{{ page.path }}">{{ page.title }}</a></h5>
               <h6>
