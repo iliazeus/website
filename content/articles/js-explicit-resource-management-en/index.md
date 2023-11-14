@@ -691,8 +691,6 @@ export async function fetchCat(
 
 Let's test this out:
 
-Проверим, получилось ли у нас исправить дело:
-
 ```bash
 $ npm run demo
 
