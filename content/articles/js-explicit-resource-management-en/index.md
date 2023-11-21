@@ -84,7 +84,7 @@ emitter.on("event", () => listener.onEvent(emitter));
 
 emitter = null;
 // emitter won't be garbage collected
-// as long as listenre is alive
+// as long as listener is alive
 ```
 
 Using event subscriptions as an example, let's is what the new resource management syntax looks like. First, to implement the lifecycle logic:
