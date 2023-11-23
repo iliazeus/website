@@ -12,6 +12,9 @@ extra:
     - rel: alternate
       text: habr
       href: https://habr.com/ru/articles/754764/
+    - rel: alternate
+      text: read in english
+      href: /articles/js-ts-reflection-en/
 ---
 
 Как и в любом достаточно динамическом языке, в JavaScript из коробки есть способы разобрать в рантайме структуру его значений — определить типы, ключи объектов, получить конструкторы и прототипы.
