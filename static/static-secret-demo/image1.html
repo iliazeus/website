@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <script type="module" src="/static-secret.js#decrypt"></script>
+  </head>
+  <body>
+    <p>
+      The following image is encrypted using
+      <a href="https://github.com/iliazeus/static-secret">static-secret.js</a>, and will only be
+      available if the page URL hash includes the correct password.
+    </p>
+
+    <p>
+      If you appended the correct password and nothing changed, you might need to refresh the page.
+    </p>
+
+    <p>
+      The password is then removed from history, so refreshing the page will hide the image. Use the
+      link that has a password to view it again.
+    </p>
+
+    <img
+      src="./image1.jpg.encrypted"
+      width="768"
+      height="512"
+      data-static-secret="ECcAABAALdcQ7DZI2lIeQccgew+ngwwAGonN9/bQhRx5HSTv"
+    />
+  </body>
+</html>
