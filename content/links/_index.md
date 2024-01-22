@@ -28,6 +28,12 @@ Lots of lower-level C goodness, like an [αcτµαlly pδrταblε εxεcµταb
 [αcτµαlly pδrταblε εxεcµταblε]: https://justine.lol/ape.html
 [a lisp]: https://github.com/jart/sectorlisp
 
+### [kokoscript.com](https://kokoscript.com/)
+
+A website of Koko, wonderfully stlyed to resemble an [IRIX Interactive Desktop].
+
+[IRIX Interactive Desktop]: https://en.wikipedia.org/wiki/IRIX_Interactive_Desktop
+
 ### [Vyacheslav Egorov](https://mrale.ph/)
 
 A blog with in-depth articles about Dart, V8, and JavaScript optimization in general.
