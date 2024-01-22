@@ -1,13 +1,45 @@
-<p id="punkomatic-div-{{ slug }}">loading punkomatic-js...</p>
+<div class="punkomatic-song" id="{{ slug }}">
+  <div class="row">
+    <button id="play" title="Play or download" disabled>Play</button>
+    <button id="copy" class="if-js" title="Copy data">Copy</button>
+    <pre><code>{{ body | safe }}</code></pre>
+  </div>
 
-<p class="if-not-js">Enable JavaScript to download or listen to the song.</p>
+  <div id="audio" class="row"></div>
 
-<pre><code>{{ body | safe }}</code></pre>
+  <style>
+    .punkomatic-song .row {
+      display: flex;
+      flex-flow: row nowrap;
+    }
 
-<!-- <script async id="punkomatic-script" src="/punkomatic-0.2.2.bundle.js"></script> -->
+    .punkomatic-song .row button {
+      margin-right: 5px;
+      min-width: 72px;
+      max-width: 72px;
+      padding: 5px;
+    }
+
+    .punkomatic-song audio {
+      width: 100%;
+    }
+  </style>
+</div>
+
 <script>
   (async () => {
-    const punkomaticDiv = document.getElementById("punkomatic-div-{{ slug }}");
+    const songDiv = document.querySelector(".punkomatic-song#{{ slug }}");
+
+    const playButton = songDiv.querySelector("button#play");
+    const copyButton = songDiv.querySelector("button#copy");
+    const codeElt = songDiv.querySelector("code");
+    const audioDiv = songDiv.querySelector("#audio");
+
+    copyButton.onclick = async () => {
+      await navigator.clipboard.writeText(codeElt.innerHTML);
+      copyButton.innerText = "Done!";
+      setTimeout(() => (copyButton.innerText = "Copy"), 2000);
+    };
 
     let punkomaticScript = document.getElementById("punkomatic-script");
     if (!punkomaticScript) {
@@ -20,25 +52,25 @@
       await new Promise((cb) => (punkomaticScript.onload = cb));
     }
 
-    const renderButton = document.createElement("button");
-    renderButton.style.maxWidth = "360px";
-    renderButton.innerText = "Play or download";
-    renderButton.onclick = async () => {
+    playButton.disabled = false;
+    playButton.onclick = async () => {
+      playButton.onclick = null;
+
       const blob = await PunkomaticJs.renderSongInBrowser({
         songData: "{{ body | safe }}",
         sampleBaseUrl: "/punkomatic-samples/",
         log: (text, progress) =>
-          (punkomaticDiv.innerText = progress
+          (audioDiv.innerText = progress
             ? `${text} (${progress.current}/${progress.total})`
             : text),
       });
 
-      const url = URL.createObjectURL(blob);
-      punkomaticDiv.innerHTML = `
-        <audio controls src="${url}"></audio>
-        <a download href="${url}" filename="{{ slug }}.wav">Download WAV</a>
-      `;
+      const audioElt = document.createElement("audio");
+      audioElt.controls = true;
+      audioElt.src = URL.createObjectURL(blob);
+      audioDiv.replaceChildren(audioElt);
+
+      playButton.onclick = () => audioElt.play();
     };
-    punkomaticDiv.replaceChildren(renderButton);
   })();
 </script>
