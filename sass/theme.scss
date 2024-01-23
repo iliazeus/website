@@ -42,6 +42,10 @@ a > code {
   color: var(--primary);
 }
 
+main {
+  padding-top: 32px !important;
+}
+
 main figure,
 main img {
   display: block;
