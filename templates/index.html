@@ -48,8 +48,8 @@
         <h6>илья, иль не я</h6>
       </hgroup>
 
-      <p>I do TypeScript, Python, Rust, and weird stuff.</p>
-      <p>I sometimes write articles, or translate articles written by others.</p>
+      <p>I do TypeScript, Python, Rust, and weird stuff.
+      <br />I sometimes write articles, or translate articles written by others.</p>
 
       {% for subsection_path in section.subsections %}
         {% set subsection = get_section(path=subsection_path) %}
@@ -65,13 +65,15 @@
           </hgroup>
           {% for project in subsection.extra.projects %}
             <hgroup>
-              <h5><a href="{{ project.repository }}">{{ project.name }}</a></h5>
-              <h6>
-                <ul class="title-meta" style="margin-bottom: inherit">
+              <h5>
+                <a href="{{ project.repository }}">{{ project.name }}</a>
+                <ul class="title-meta" style="margin-bottom: inherit; display: inline-block; margin-left: 0.5em">
                   {% for badge in project.badges | default(value=[]) %}
                     <a title="{{ badge.title }}" href="{{ badge.href }}"><img src="{{ badge.img }}" alt="{{ badge.title }}" /></a>
                   {% endfor %}
                 </ul>
+              </h5>
+              <h6>
                 <p>{{ project.description | default(value="") | safe }}</p>
               </h6>
             </hgroup>
