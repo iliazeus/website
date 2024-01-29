@@ -8,12 +8,18 @@ extra:
   show_on_main: link
 ---
 
-These are select few good [Punk-o-Matic 2] songs I salvaged from various places, in no particular order. Made possible using [a library] I wrote.
+Punk-o-Matic 2 is a piece of Flash software that allows people to compose their own punk and punk-adjacent rock songs by stringing together lots of pre-recorded riffs and drum patterns. You can still download it from its [official website], or play it [on Newgrounds].
 
-To save on bandwidth, audio is not loaded until you press the "play or download" button.
+[official website]: https://www.evildoggames.com/punk-o-matic-2.html
+[on newgrounds]: https://www.newgrounds.com/portal/view/525045
 
-[punk-o-matic 2]: https://www.evildoggames.com/punk-o-matic-2.html
-[a library]: https://github.com/iliazeus/punkomatic-js
+One of its important features is song sharing: you can export your creation as a bunch of text-based codes and post it on a forum somewhere, then other people can import it to check it out. There also used to be a website, punk-o-matic.net, that was a hub for sharing such songs, but it is no longer active.
+
+On this page there are some of the good Punk-o-Matic 2 songs I salvaged from various places, in no particular order. Made possible using [punkomatic-js], a piece of software I wrote that can play those song codes in your web browser.
+
+[punkomatic-js]: https://github.com/iliazeus/punkomatic-js
+
+<big>[Play your own data](https://iliazeus.github.io/punkomatic-js/)</big>
 
 <style>main h3 { margin-bottom: inherit }</style>
 
