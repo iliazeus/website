@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="{{ page.extra.lang | default(value=page.lang) }}">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <link
+      rel="preload" as="style"
+      href="https://code.cdn.mozilla.net/fonts/fira.css"
+      onload="this.onload=null;this.rel='stylesheet'"
+    />
+
+    <link rel="stylesheet" href="/pico-1.5.6-classless.min.css" />
+    <style>main h2, main h3, main h4 { margin-bottom: 0 }</style>
+
+    <!-- prettier-ignore -->
+    <style>.if-not-js { display: none !important }</style>
+    <noscript><style>
+      .if-js { display: none !important }
+      .if-not-js { display: unset !important }
+    </style></noscript>
+
+    <script src="/theme.js"></script>
+    <link rel="stylesheet" href="/theme.css" />
+
+    <title>{{ page.title }} | Punk-o-Matic 2 song data | iliazeus</title>
+  </head>
+
+  <body>
+    <main>
+      <hgroup>
+        <h1 style="position: relative">
+            <span
+              aria-hidden="true"
+              class="if-js"
+              style="position: absolute; top: 0.3em; left: -1.5em;"
+              onclick="toggleTheme()"
+              id="theme-toggle"
+              title="toggle theme"
+            ></span>
+          <a href="/" title="main page">iliazeus</a>
+        </h1>
+        <h6>илья, иль не я</h6>
+      </hgroup>
+
+      <a href="..">Punk-o-Matic 2 song data</a>
+      <h2>{{ page.title }}</h2>
+
+      {{ page.content | safe }}
+
+      <nav>
+        <small>
+          <ul>
+            <li><a rel="me" href="https://github.com/iliazeus">github</a></li>
+            <li><a rel="me" href="https://habr.com/users/iliazeus">habr</a></li>
+            <li><a rel="me" href="https://lor.sh/@iliazeus">mastodon</a></li>
+            <li><a rel="me" href="mailto:iliazeus@proton.me">mailto</a></li>
+          </ul>
+
+          <p>
+            made with <a href="https://www.getzola.org/">Zola</a>,
+            <a href="https://picocss.com/">Pico.css</a>,
+            and some <a href="https://twemoji.twitter.com/">Twemoji</a>
+          </p>
+        </small>
+      </nav>
+    </main>
+  </body>
+</html>
