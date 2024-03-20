@@ -5,7 +5,7 @@ weight: 2
 template: punkomatic-page.html
 ---
 
-These were salvaged with the help of [Internet Archive]. Since POM.net is long gone, I've tried to link artists' profiles on other websites, where I could find them.
+These were salvaged with the help of [Internet Archive].
 
 [Internet Archive]: https://web.archive.org/web/20130202172044/http://www.punk-o-matic.net/index.php?option=com_usercontents&task=displayallcontents&mode=mostrated&type=0&Itemid=60
 
