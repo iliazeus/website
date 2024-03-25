@@ -26,51 +26,38 @@
   </style>
 </div>
 
-<script>
-  (async () => {
-    const songDiv = document.querySelector(".punkomatic-song#{{ slug }}");
+<script type="module">
+  import * as pm from "/punkomatic-0.3.0.js";
 
-    const playButton = songDiv.querySelector("button#play");
-    const copyButton = songDiv.querySelector("button#copy");
-    const codeElt = songDiv.querySelector("code");
-    const audioDiv = songDiv.querySelector("#audio");
+  const songDiv = document.querySelector(".punkomatic-song#{{ slug }}");
 
-    copyButton.onclick = async () => {
-      await navigator.clipboard.writeText(codeElt.innerHTML);
-      copyButton.innerText = "Done!";
-      setTimeout(() => (copyButton.innerText = "Copy"), 2000);
-    };
+  const playButton = songDiv.querySelector("button#play");
+  const copyButton = songDiv.querySelector("button#copy");
+  const codeElt = songDiv.querySelector("code");
+  const audioDiv = songDiv.querySelector("#audio");
 
-    let punkomaticScript = document.getElementById("punkomatic-script");
-    if (!punkomaticScript) {
-      punkomaticScript = Object.assign(document.createElement("script"), {
-        id: "punkomatic-script",
-        async: true,
-        src: "/punkomatic-0.2.2.bundle.js",
-      });
-      document.body.appendChild(punkomaticScript);
-      await new Promise((cb) => (punkomaticScript.onload = cb));
-    }
+  copyButton.onclick = async () => {
+    await navigator.clipboard.writeText(codeElt.innerHTML);
+    copyButton.innerText = "Done!";
+    setTimeout(() => (copyButton.innerText = "Copy"), 2000);
+  };
 
-    playButton.disabled = false;
-    playButton.onclick = async () => {
-      playButton.onclick = null;
+  playButton.disabled = false;
+  playButton.onclick = async () => {
+    playButton.onclick = null;
 
-      const blob = await PunkomaticJs.renderSongInBrowser({
-        songData: "{{ body | safe }}",
-        sampleBaseUrl: "/punkomatic-samples/",
-        log: (text, progress) =>
-          (audioDiv.innerText = progress
-            ? `${text} (${progress.current}/${progress.total})`
-            : text),
-      });
+    const blob = await pm.renderSong({
+      songData: "{{ body | safe }}",
+      sampleDir: "/punkomatic-samples/",
+      log: (text, progress) =>
+        (audioDiv.innerText = progress ? `${text} (${progress.current}/${progress.total})` : text),
+    });
 
-      const audioElt = document.createElement("audio");
-      audioElt.controls = true;
-      audioElt.src = URL.createObjectURL(blob);
-      audioDiv.replaceChildren(audioElt);
+    const audioElt = document.createElement("audio");
+    audioElt.controls = true;
+    audioElt.src = URL.createObjectURL(blob);
+    audioDiv.replaceChildren(audioElt);
 
-      playButton.onclick = () => audioElt.play();
-    };
-  })();
+    playButton.onclick = () => audioElt.play();
+  };
 </script>
