@@ -104,6 +104,10 @@ main {
   }
 }
 
+a[href="#"] {
+  text-decoration: 2px underline dotted;
+}
+
 .projects {
   display: flex;
   flex-flow: row wrap;
