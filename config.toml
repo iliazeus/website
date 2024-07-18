@@ -10,8 +10,8 @@ build_search_index = false
 highlight_code = true
 highlight_theme = "css"
 highlight_themes_css = [
-  { theme = "solarized-light", filename = "syntax-light.css" },
-  { theme = "solarized-dark", filename = "syntax-dark.css" },
+  { theme = "dimmed-fluid", filename = "syntax-light.css" },
+  { theme = "monokai", filename = "syntax-dark.css" },
 ]
 
 [extra]

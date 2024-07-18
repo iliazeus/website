@@ -5,9 +5,9 @@ const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
 
 let theme = "light";
 if (stored) theme = stored;
-else if (rootDataArg) theme = rootDataArg;
 else if (prefersLight) theme = "light";
 else if (prefersDark) theme = "dark";
+else if (rootDataArg) theme = rootDataArg;
 
 document.documentElement.dataset.theme = theme;
 
@@ -17,3 +17,10 @@ var toggleTheme = () => {
   document.documentElement.dataset.theme = next;
   window.sessionStorage.setItem("theme", next);
 };
+
+window.addEventListener("load", (e) => {
+  e.preventDefault();
+  document
+    .querySelectorAll(".theme-toggle")
+    .forEach((el) => el.addEventListener("click", toggleTheme));
+});

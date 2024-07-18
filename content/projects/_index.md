@@ -1,81 +1,63 @@
 ---
 title: some things I built
 description: <a href="https://github.com/iliazeus?tab=repositories">https://github.com/iliazeus</a>
-sort_by: date
 weight: 0
 render: false
 extra:
   show_on_main: projects
   projects:
-    - name: vscode-ansi
+    - title: vscode-ansi
       description: VS Code extension enabling ANSI color styling for text documents
+      homepage: https://marketplace.visualstudio.com/items?itemName=iliazeus.vscode-ansi
       repository: https://github.com/iliazeus/vscode-ansi
-      badges:
-        - title: TypeScript
-          href: https://github.com/iliazeus/vscode-ansi
-          img: https://img.shields.io/static/v1?label=%20&message=TypeScript&color=blue&style=for-the-badge
-        - title: MIT license
-          href: https://github.com/iliazeus/vscode-ansi
-          img: https://img.shields.io/github/license/iliazeus/vscode-ansi?style=for-the-badge
-        - title: GitHub Release
-          href: https://github.com/iliazeus/vscode-ansi/releases/latest
-          img: https://img.shields.io/github/v/release/iliazeus/vscode-ansi?label=%20&logo=github&style=for-the-badge
-        - title: GitHub Stars
-          href: https://github.com/iliazeus/vscode-ansi
-          img: https://img.shields.io/github/stars/iliazeus/vscode-ansi?label=stars&logo=star&style=for-the-badge
-        - title: VS Code Marketplace
-          href: https://marketplace.visualstudio.com/items?itemName=iliazeus.vscode-ansi
-          img: https://img.shields.io/visual-studio-marketplace/stars/iliazeus.vscode-ansi?label=%20&logo=visual-studio-code&style=for-the-badge
-    - name: iso2god-rs
+      language: TypeScript
+      license: MIT
+      github: iliazeus/vscode-ansi
+      vs_marketplace: iliazeus.vscode-ansi
+      badges: [language, github_license, vs_marketplace_rating, github_release, github_stars]
+
+    - title: iso2god-rs
       description: a command-line tool to convert Xbox 360 ISOs into a Games-On-Demand file format; for Linux, Windows and MacOS
+      homepage: https://github.com/iliazeus/iso2god-rs
       repository: https://github.com/iliazeus/iso2god-rs
-      badges:
-        - title: Rust
-          href: https://github.com/iliazeus/vscode-ansi
-          img: https://img.shields.io/static/v1?label=%20&message=Rust&color=orange&style=for-the-badge
-        - title: MIT license
-          href: https://github.com/iliazeus/iso2god-rs
-          img: https://img.shields.io/github/license/iliazeus/iso2god-rs?style=for-the-badge
-        - title: GitHub Release
-          href: https://github.com/iliazeus/iso2god-rs/releases/latest
-          img: https://img.shields.io/github/v/release/iliazeus/iso2god-rs?label=%20&logo=github&style=for-the-badge
-        - title: GitHub Stars
-          href: https://github.com/iliazeus/iso2god-rs
-          img: https://img.shields.io/github/stars/iliazeus/iso2god-rs?label=stars&logo=star&style=for-the-badge
-    - name: durgod
-      description: scripts for controlling a Durgod Taurus K320 Nebula keyboard
-      repository: https://github.com/iliazeus/durgod
-      badges:
-        - title: Python
-          href: https://github.com/iliazeus/durgod
-          img: https://img.shields.io/static/v1?label=%20&message=Python&color=blue&style=for-the-badge
-        - title: MIT license
-          href: https://github.com/iliazeus/durgod
-          img: https://img.shields.io/github/license/iliazeus/durgod?style=for-the-badge
-        - title: GitHub Stars
-          href: https://github.com/iliazeus/durgod
-          img: https://img.shields.io/github/stars/iliazeus/durgod?label=stars&logo=star&style=for-the-badge
-    - name: zmbx2gltf
-      description: a tool to convert MecaBricks .zmbx files to glTF; <a href="legos">see in action</a>
+      language: Rust
+      license: MIT
+      github: iliazeus/iso2god-rs
+      badges: [language, github_license, github_release, github_stars]
+
+    - title: pico8-badapple
+      description: my attempts to squeeze Bad Apple into a Pico-8 cartridge
+      homepage: https://www.lexaloffle.com/bbs/?pid=151196#p
+      repository: https://github.com/iliazeus/pico8-badapple
+      language: Lua & JavaScript
+      license: MIT
+      github: iliazeus/pico8-badapple
+      badges: [language, github, github_stars, github_license]
+
+    - title: zmbx2gltf
+      description: a tool to convert MecaBricks .zmbx files to glTF
+      homepage: /legos/
       repository: https://github.com/iliazeus/zmbx2gltf
-      badges:
-        - title: TypeScript
-          href: https://github.com/iliazeus/zmbx2gltf
-          img: https://img.shields.io/static/v1?label=%20&message=TypeScript&color=blue&style=for-the-badge
-        - title: MIT license
-          href: https://github.com/iliazeus/zmbx2gltf
-          img: https://img.shields.io/github/license/iliazeus/zmbx2gltf?style=for-the-badge
-        - title: GitHub Stars
-          href: https://github.com/iliazeus/zmbx2gltf
-          img: https://img.shields.io/github/stars/iliazeus/zmbx2gltf?label=stars&logo=star&style=for-the-badge
-    - name: punkomatic-js
-      description: a Punk-O-Matic 2 song data parser and player; <a href="punkomatic">see in action</a>
+      language: TypeScript
+      license: MIT
+      github: iliazeus/zmbx2gltf
+      badges: [language, github, github_stars, github_license]
+
+    - title: punkomatic-js
+      description: a Punk-O-Matic 2 song data parser and player
+      homepage: /punkomatic/
       repository: https://github.com/iliazeus/punkomatic-js
-      badges:
-        - title: TypeScript
-          href: https://github.com/iliazeus/punkomatic-js
-          img: https://img.shields.io/static/v1?label=%20&message=TypeScript&color=blue&style=for-the-badge
-        - title: MIT license
-          href: https://github.com/iliazeus/punkomatic-js
-          img: https://img.shields.io/github/license/iliazeus/punkomatic-js?style=for-the-badge
+      language: TypeScript
+      license: MIT
+      github: iliazeus/punkomatic-js
+      badges: [language, github, github_license]
+
+    - title: durgod.py
+      description: scripts for controlling a Durgod Taurus K320 Nebula keyboard
+      homepage: https://github.com/iliazeus/durgod
+      repository: https://github.com/iliazeus/durgod
+      language: Python
+      license: MIT
+      github: iliazeus/durgod
+      badges: [language, github, github_license]
 ---

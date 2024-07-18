@@ -2,7 +2,7 @@
   <div
     id="3d-{{ model | slugify }}"
     class="online_3d_viewer"
-    {% if poster %} style="cursor: pointer; background: no-repeat center/100% url({{ poster }})" {% endif %}
+    {% if poster %} style="cursor: pointer; background: no-repeat center/100% url({{ poster | safe }})" {% endif %}
   ></div>
 
   <div class="if-js"><small>
@@ -13,7 +13,7 @@
   <div class="if-not-js"><small>Enable JavaScript for interactive 3D model preview and glTF download.</small></div>
 
   <div>
-    <small>download: <a href="{{ model }}" download>zmbx (Mecabricks)</a><span class="if-js">,
+    <small>download: <a href="{{ model | safe }}" download>zmbx (Mecabricks)</a><span class="if-js">,
     <a style="cursor: pointer" id="download-gltf-{{ model | slugify }}" download>glTF</a></span>.</small>
   </div>
 </figure>
@@ -64,7 +64,7 @@
 
       viewerElement.innerText = "Loading model...";
 
-      const zmbxBlob = await (await fetch("{{ model }}")).blob();
+      const zmbxBlob = await (await fetch("{{ model | safe }}")).blob();
       const zmbxFileName = "{{ model }}".split("/").pop();
 
       const gltf = await Zmbx2Gltf.convertZmbxToGltf(zmbxBlob);

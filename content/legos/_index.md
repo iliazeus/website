@@ -4,6 +4,7 @@ description: with interactive 3D models
 sort_by: date
 weight: 3
 render: true
+insert_anchor_links: left
 extra:
   show_on_main: link
 ---
@@ -12,7 +13,7 @@ All of these are under [CC BY-SA 4.0].
 
 [cc by-sa 4.0]: https://creativecommons.org/licenses/by-sa/4.0/
 
-### cab
+## cab
 
 This little cabby was built using parts from the [Bricks and Wheels set].
 
@@ -20,7 +21,7 @@ This little cabby was built using parts from the [Bricks and Wheels set].
 
 {{ lego_3d(model="cab.zmbx", poster="cab.png") }}
 
-### cat
+## cat
 
 This black-and-white cat was built using parts from the [Bricks and Wheels set].
 
@@ -28,7 +29,7 @@ This black-and-white cat was built using parts from the [Bricks and Wheels set].
 
 {{ lego_3d(model="cat.zmbx", poster="cat.png") }}
 
-### ducks
+## ducks
 
 These duckies were built using parts from the [Bricks and Wheels set].
 
@@ -36,7 +37,7 @@ These duckies were built using parts from the [Bricks and Wheels set].
 
 {{ lego_3d(model="ducks.zmbx", poster="ducks.png") }}
 
-### micro bus
+## micro bus
 
 This little blue bus was built using parts from the [Bricks and Wheels set].
 
@@ -44,7 +45,7 @@ This little blue bus was built using parts from the [Bricks and Wheels set].
 
 {{ lego_3d(model="micro-bus.zmbx", poster="micro-bus.png") }}
 
-### open-wheel race car
+## open-wheel race car
 
 This race car was built using parts from the [Bricks and Wheels set].
 
@@ -52,7 +53,7 @@ This race car was built using parts from the [Bricks and Wheels set].
 
 {{ lego_3d(model="open-wheel-race-car.zmbx", poster="open-wheel-race-car.png") }}
 
-### vespa
+## vespa
 
 This motor scooter was built using parts from the [Bricks and Wheels set].
 
@@ -60,7 +61,7 @@ This motor scooter was built using parts from the [Bricks and Wheels set].
 
 {{ lego_3d(model="vespa.zmbx", poster="vespa.png") }}
 
-### yellow plane
+## yellow plane
 
 This plane bus was built using parts from the [Bricks and Wheels set].
 

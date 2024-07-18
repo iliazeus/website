@@ -1,0 +1,189 @@
+$border-radius: 5px;
+
+:root[data-theme="light"] {
+  @import "../static/syntax-light";
+  --prominent-background: #eee;
+  body {
+    background: white;
+    color: black;
+  }
+  a {
+    color: rgb(51, 102, 204);
+  }
+  a:visited {
+    color: rgb(142, 68, 190);
+  }
+}
+
+:root[data-theme="dark"] {
+  @import "../static/syntax-dark";
+  --prominent-background: #444;
+  body {
+    background: rgb(39, 40, 34);
+    color: rgb(248, 248, 242);
+  }
+  a {
+    color: rgb(102, 217, 239);
+  }
+  a:visited {
+    color: rgb(174, 129, 255);
+  }
+}
+
+body {
+  font-family: system-ui, -apple-system, "Segoe UI", "Roboto", "Ubuntu", "Cantarell", "Noto Sans",
+    sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+  @media screen and (width > 1024px) {
+    font-size: 18px;
+  }
+}
+
+body > * {
+  max-width: 1000px;
+  padding: 0 0.5rem;
+  margin: 0 auto;
+}
+
+header h1 {
+  a,
+  a:visited {
+    color: inherit;
+  }
+}
+
+footer {
+  margin-top: 2rem;
+}
+
+main {
+  a.anchor {
+    color: inherit;
+    font-weight: normal;
+    text-decoration: 2px underline dotted;
+    margin-right: 8px;
+  }
+
+  pre {
+    padding: 8px;
+    border: 1px solid;
+    border-radius: $border-radius;
+    overflow-x: scroll;
+    @media screen and (width > 1024px) {
+      font-size: 16px;
+    }
+  }
+
+  :not(pre) > code {
+    font-family: "Fira Code", monospace;
+    background: var(--prominent-background);
+    padding: 0 4px;
+    border-radius: $border-radius;
+  }
+
+  details {
+    summary {
+      cursor: pointer;
+      text-decoration: 2px underline dotted;
+    }
+  }
+
+  img {
+    max-width: 100%;
+    max-height: 800px;
+    display: block;
+    margin: auto;
+    border: 1px solid;
+    border-radius: $border-radius;
+    &.noborder {
+      border: none;
+    }
+  }
+
+  figcaption {
+    text-align: center;
+  }
+}
+
+.projects {
+  display: flex;
+  flex-flow: row wrap;
+  align-items: start;
+
+  > article {
+    display: inline-block;
+    box-sizing: border-box;
+
+    width: 100%;
+    margin: 8px 0;
+    @media screen and (width > 720px) {
+      width: 45%;
+      padding: 8px 12px;
+      margin: 8px;
+      border: solid 1px;
+      border-radius: $border-radius;
+    }
+    @media screen and (width > 1024px) {
+      width: 30%;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+    }
+  }
+}
+
+hgroup {
+  margin-top: 16px;
+  margin-bottom: 8px;
+
+  * {
+    margin-top: 0;
+    margin-bottom: 0;
+  }
+}
+
+ul.horizontal {
+  padding: inherit;
+  li {
+    display: inline;
+    white-space: nowrap;
+    list-style: none;
+    &:not(:first-child)::before {
+      content: " · ";
+    }
+  }
+}
+
+ul.badges {
+  padding: 0;
+  padding-top: 2px;
+  li {
+    display: inline;
+    white-space: nowrap;
+    list-style: none;
+    img {
+      display: inline;
+      border: none;
+    }
+  }
+}
+
+.small {
+  font-size: smaller;
+}
+
+.lego-3d {
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+  text-align: center;
+  max-width: 640px;
+
+  .online_3d_viewer {
+    height: auto;
+    aspect-ratio: 4 / 3;
+    border: solid 1px;
+    border-radius: $border-radius;
+  }
+}

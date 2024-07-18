@@ -1,3 +1,4 @@
+{% import "macros.html" as macros %}
 <!DOCTYPE html>
 <html lang="{{ section.lang }}">
   <head>
@@ -16,8 +17,6 @@
       onload="this.onload=null;this.rel='stylesheet'"
     />
 
-    <link rel="stylesheet" href="/pico-1.5.6-classless.min.css" />
-
     <!-- prettier-ignore -->
     <style>.if-not-js { display: none !important }</style>
     <noscript><style>
@@ -26,84 +25,77 @@
     </style></noscript>
 
     <script src="/theme.js"></script>
-    <link rel="stylesheet" href="/theme.css" />
+    <link rel="stylesheet" href="/style.css" />
 
     <title>iliazeus</title>
   </head>
 
   <body>
-    <main>
-      <hgroup>
-        <h1 style="position: relative">
-            <span
-              aria-hidden="true"
-              class="if-js"
-              style="position: absolute; top: 0.3em; left: -1.5em;"
-              onclick="toggleTheme()"
-              id="theme-toggle"
-              title="toggle theme"
-            ></span>
-          <a href="/" title="main page">iliazeus</a>
-        </h1>
-        <h6>илья, иль не я</h6>
-      </hgroup>
+    <a class="if-js theme-toggle" style="cursor: pointer; position: absolute; right: 8px; top: 8px">toggle dark theme</a>
 
+    <header>
+      <hgroup>
+        <h1><a href="/" title="go to main page">iliazeus</a></h1>
+        <nav>
+          <ul class="horizontal small">
+            <li><a rel="me" href="https://github.com/iliazeus">github</a></li>
+            <li><a rel="me" href="https://habr.com/users/iliazeus">habr</a></li>
+            <li><a rel="me" href="https://lor.sh/@iliazeus">mastodon</a></li>
+            <li><a rel="me" href="mailto:iliazeus@proton.me">mailto</a></li>
+          </ul>
+        </nav>
+        <p>илья, иль не я</p>
+      </hgroup>
+    </header>
+
+    <main>
       <p>I do TypeScript, Python, Rust, and weird stuff.
       <br />I sometimes write articles, or translate articles written by others.</p>
-
       {% for subsection_path in section.subsections %}
         {% set subsection = get_section(path=subsection_path) %}
         {% if subsection.extra.show_on_main | default(value="pages") == "link" %}
           <hgroup>
-            <h3><a href="{{ subsection.path }}">{{ subsection.title }}</a></h3>
-            <h6>{{ subsection.description | default(value="") }}</h6>
+            <h2><a href="{{ subsection.path }}">{{ subsection.title }}</a></h2>
+            <p>{{ subsection.description | default(value="") }}</p>
           </hgroup>
         {% elif subsection.extra.show_on_main | default(value="pages") == "projects" %}
           <hgroup>
-            <h3>{{ subsection.title }}</h3>
-            <h6>{{ subsection.description | default(value="") | safe }}</h6>
+            <h2>{{ subsection.title }}</h2>
+            <p>{{ subsection.description | default(value="") | safe }}</p>
           </hgroup>
-          {% for project in subsection.extra.projects %}
-            <hgroup>
-              <h5>
-                <a href="{{ project.repository }}">{{ project.name }}</a>
-                <ul class="title-meta" style="margin-bottom: inherit; display: inline-block; margin-left: 0.5em">
-                  {% for badge in project.badges | default(value=[]) %}
-                    <a title="{{ badge.title }}" href="{{ badge.href }}"><img src="{{ badge.img }}" alt="{{ badge.title }}" /></a>
-                  {% endfor %}
-                </ul>
-              </h5>
-              <h6>
+          <div class="projects">
+            {% for project in subsection.extra.projects %}
+              <article class="project">
+                <h3><a target="_blank" href="{{ project.homepage }}">{{ project.title }}</a></h3>
+                {{ macros::badges(project=project) }}
                 <p>{{ project.description | default(value="") | safe }}</p>
-              </h6>
-            </hgroup>
-          {% endfor %}
+              </article>
+            {% endfor %}
+          </div>
         {% else %}
           <hgroup>
-            <h3>recent {{ subsection.title }} (<a href="{{ subsection.path }}">see&nbsp;all</a>)</h3>
-            <h6>{{ subsection.description | default(value="") }}</h6>
+            <h2>recent {{ subsection.title }} (<a href="{{ subsection.path }}">see&nbsp;all</a>)</h2>
+            <p>{{ subsection.description | default(value="") }}</p>
           </hgroup>
           {{ subsection.content | safe }}
           {% for page in subsection.pages | slice(end=5) %}
             <hgroup>
-              <h5><a href="{{ page.path }}">{{ page.title }}</a></h5>
-              <h6>
-                <ul class="title-meta" style="margin-bottom: inherit">
-                  <li>{{ page.date }}</li>
-                  <li>{{ page.extra.lang }}</li>
-                  {% for link in page.extra.links %}
-                  <li><a href="{{ link.href }}" {% if link.rel %} rel="{{ link.rel }}" {% endif %}>{{ link.text }}</a></li>
-                  {% endfor %}
-                </ul>
-                <p>{{ page.description | default(value="") }}</p>
-              </h6>
+              <h3><a href="{{ page.path }}">{{ page.title }}</a></h3>
+              <p>{{ page.description | default(value="") }}</p>
+              <ul class="horizontal small">
+                <li>{{ page.date }}</li>
+                <li>{{ page.extra.lang }}</li>
+                {% for link in page.extra.links %}
+                <li><a target="_blank" href="{{ link.href }}" {% if link.rel %} rel="{{ link.rel }}" {% endif %}>{{ link.text }}</a></li>
+                {% endfor %}
+              </ul>
             </hgroup>
           {% endfor %}
         {% endif %}
       {% endfor %}
 
       <hgroup>
-        <h3>links</h3>
+        <h2>links</h2>
         <ul>
           <li>github: <a rel="me" href="https://github.com/iliazeus">@iliazeus</a></li>
           <li>habr: <a rel="me" href="https://habr.com/users/iliazeus">@iliazeus</a></li>
@@ -111,23 +103,18 @@
           <li>mailto: <a rel="me" href="mailto:iliazeus@proton.me">iliazeus@proton.me</a></li>
         </ul>
       </hgroup>
-
-      <small>
-        <nav>
-          <ul>
-            <li><a rel="me" href="https://github.com/iliazeus">github</a></li>
-            <li><a rel="me" href="https://habr.com/users/iliazeus">habr</a></li>
-            <li><a rel="me" href="https://lor.sh/@iliazeus">mastodon</a></li>
-            <li><a rel="me" href="mailto:iliazeus@proton.me">mailto</a></li>
-          </ul>
-        </nav>
-
-        <p>
-          made with <a href="https://www.getzola.org/">Zola</a>,
-          <a href="https://picocss.com/">Pico.css</a>,
-          and some <a href="https://twemoji.twitter.com/">Twemoji</a>
-        </p>
-      </small>
     </main>
+
+    <footer>
+      <nav>
+        <ul class="horizontal small">
+          <li><a rel="me" href="https://github.com/iliazeus">github</a></li>
+          <li><a rel="me" href="https://habr.com/users/iliazeus">habr</a></li>
+          <li><a rel="me" href="https://lor.sh/@iliazeus">mastodon</a></li>
+          <li><a rel="me" href="mailto:iliazeus@proton.me">mailto</a></li>
+          <li>made with <a href="https://www.getzola.org/">Zola</a></li>
+        </ul>
+      </nav>
+    </footer>
   </body>
 </html>

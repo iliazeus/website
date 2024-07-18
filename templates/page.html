@@ -10,9 +10,6 @@
       onload="this.onload=null;this.rel='stylesheet'"
     />
 
-    <link rel="stylesheet" href="/pico-1.5.6-classless.min.css" />
-
-    <!-- prettier-ignore -->
     <style>.if-not-js { display: none !important }</style>
     <noscript><style>
       .if-js { display: none !important }
@@ -20,59 +17,54 @@
     </style></noscript>
 
     <script src="/theme.js"></script>
-    <link rel="stylesheet" href="/theme.css" />
+    <link rel="stylesheet" href="/style.css" />
 
     <title>{{ page.title }} | iliazeus</title>
   </head>
 
   <body>
-    <main>
+    <a class="if-js theme-toggle" style="cursor: pointer; position: absolute; right: 8px; top: 8px">toggle dark theme</a>
+
+    <header>
       <hgroup>
-        <h1 style="position: relative">
-            <span
-              aria-hidden="true"
-              class="if-js"
-              style="position: absolute; top: 0.3em; left: -1.5em;"
-              onclick="toggleTheme()"
-              id="theme-toggle"
-              title="toggle theme"
-            ></span>
-          <a href="/" title="main page">iliazeus</a>
-        </h1>
-        <h6>илья, иль не я</h6>
-      </hgroup>
-
-      <hgroup>
-        <h2>{{ page.title }}</h2>
-        <h6>
-          <ul class="title-meta">
-            <li>{{ page.date }}</li>
-            <li>{{ page.extra.lang }}</li>
-            {% for link in page.extra.links %}
-            <li><a href="{{ link.href }}" {% if link.rel %} rel="{{ link.rel }}" {% endif %}>{{ link.text }}</a></li>
-            {% endfor %}
-          </ul>
-        </h6>
-      </hgroup>
-
-      {{ page.content | safe }}
-
-      <nav>
-        <small>
-          <ul>
+        <h1><a href="/" title="go to main page">iliazeus</a></h1>
+        <nav>
+          <ul class="horizontal small">
             <li><a rel="me" href="https://github.com/iliazeus">github</a></li>
             <li><a rel="me" href="https://habr.com/users/iliazeus">habr</a></li>
             <li><a rel="me" href="https://lor.sh/@iliazeus">mastodon</a></li>
             <li><a rel="me" href="mailto:iliazeus@proton.me">mailto</a></li>
           </ul>
+        </nav>
+        <p>илья, иль не я</p>
+      </hgroup>
+    </header>
 
-          <p>
-            made with <a href="https://www.getzola.org/">Zola</a>,
-            <a href="https://picocss.com/">Pico.css</a>,
-            and some <a href="https://twemoji.twitter.com/">Twemoji</a>
-          </p>
-        </small>
-      </nav>
+    <main>
+      <hgroup>
+        <h2>{{ page.title }}</h2>
+        <ul class="horizontal">
+          <li>{{ page.date }}</li>
+          <li>{{ page.extra.lang }}</li>
+          {% for link in page.extra.links %}
+          <li><a target="_blank" href="{{ link.href }}" {% if link.rel %} rel="{{ link.rel }}" {% endif %}>{{ link.text }}</a></li>
+          {% endfor %}
+        </ul>
+      </hgroup>
+
+      {{ page.content | safe }}
     </main>
+
+    <footer>
+      <nav>
+        <ul class="horizontal small">
+          <li><a rel="me" href="https://github.com/iliazeus">github</a></li>
+          <li><a rel="me" href="https://habr.com/users/iliazeus">habr</a></li>
+          <li><a rel="me" href="https://lor.sh/@iliazeus">mastodon</a></li>
+          <li><a rel="me" href="mailto:iliazeus@proton.me">mailto</a></li>
+          <li>made with <a href="https://www.getzola.org/">Zola</a></li>
+        </ul>
+      </nav>
+    </footer>
   </body>
 </html>

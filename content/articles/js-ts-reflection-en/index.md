@@ -18,7 +18,7 @@ Javascript, as most dynamically-typed languages, has a lot of ways to inspect it
 
 I will demonstrate all of those by writing a toy CLI framework. By the end, its API will look something like this:
 
-![final CLI framework API](cover.png)
+<img class="noborder" src="cover.png" alt="final CLI framework API" />
 
 I will structure this whole thing with "levels", starting with:
 
