@@ -1,8 +1,11 @@
 ---
 title: My Picks
+date: 2024-03-18
 description: some of my favorite songs from different sources
 weight: 1
 template: punkomatic-page.html
+extra:
+  lang: en
 ---
 
 These are some of the good Punk-o-Matic 2 songs I salvaged from various places, in no particular order.

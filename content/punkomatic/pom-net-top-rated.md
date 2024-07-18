@@ -1,8 +1,11 @@
 ---
 title: Punk-o-Matic.net Top Rated
+date: 2024-03-20
 description: top 10 top rated songs as of February 2, 2013
 weight: 3
 template: punkomatic-page.html
+extra:
+  lang: en
 ---
 
 These were salvaged with the help of [Internet Archive].

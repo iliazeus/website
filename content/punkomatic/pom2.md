@@ -1,8 +1,11 @@
 ---
 title: Built-In Songs
+date: 2024-03-18
 description: all the built-in songs from POM2
 weight: 0
 template: punkomatic-page.html
+extra:
+  lang: en
 ---
 
 These are all the songs bundled with [Punk-o-Matic 2], sorted by their order of appearance in-game. They are all titled with fictional, in-universe bands, but are all actually written by [Evil-Dog].

@@ -3,6 +3,7 @@ base_url = "https://iliazeus.github.io"
 
 compile_sass = true
 build_search_index = false
+generate_feeds = true
 
 [markdown]
 # Whether to do syntax highlighting
