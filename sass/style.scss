@@ -33,7 +33,7 @@ $border-radius: 5px;
 body {
   font-family: system-ui, -apple-system, "Segoe UI", "Roboto", "Ubuntu", "Cantarell", "Noto Sans",
     sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
-  @media screen and (width > 1024px) {
+  @media (min-width: 1024px) {
     font-size: 18px;
   }
 }
@@ -68,7 +68,7 @@ main {
     border: 1px solid;
     border-radius: $border-radius;
     overflow-x: scroll;
-    @media screen and (width > 1024px) {
+    @media (min-width: 1024px) {
       font-size: 16px;
     }
   }
@@ -115,14 +115,14 @@ main {
 
     width: 100%;
     margin: 8px 0;
-    @media screen and (width > 720px) {
+    @media (min-width: 720px) {
       width: 45%;
       padding: 8px 12px;
       margin: 8px;
       border: solid 1px;
       border-radius: $border-radius;
     }
-    @media screen and (width > 1024px) {
+    @media (min-width: 1024px) {
       width: 30%;
     }
 
@@ -158,6 +158,9 @@ ul.horizontal {
 ul.badges {
   padding: 0;
   padding-top: 2px;
+  @media (min-width: 720px) {
+    min-height: 52px;
+  }
   li {
     display: inline;
     white-space: nowrap;
@@ -165,6 +168,7 @@ ul.badges {
     img {
       display: inline;
       border: none;
+      height: 20px;
     }
   }
 }
