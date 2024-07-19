@@ -1,7 +1,6 @@
 $border-radius: 5px;
 
-:root[data-theme="light"] {
-  @import "../static/syntax-light";
+@mixin theme-light {
   --prominent-background: #eee;
   body {
     background: white;
@@ -15,8 +14,7 @@ $border-radius: 5px;
   }
 }
 
-:root[data-theme="dark"] {
-  @import "../static/syntax-dark";
+@mixin theme-dark {
   --prominent-background: #444;
   body {
     background: rgb(39, 40, 34);
@@ -27,6 +25,35 @@ $border-radius: 5px;
   }
   a:visited {
     color: rgb(174, 129, 255);
+  }
+}
+
+:root[data-theme="light"] {
+  @import "../static/syntax-light";
+  @include theme-light;
+}
+
+:root[data-theme="dark"] {
+  @import "../static/syntax-dark";
+  @include theme-dark;
+}
+
+:root:not([data-theme]) {
+  @import "../static/syntax-light";
+  @include theme-light;
+}
+
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme]) {
+    @import "../static/syntax-light";
+    @include theme-light;
+  }
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme]) {
+    @import "../static/syntax-dark";
+    @include theme-dark;
   }
 }
 
