@@ -27,7 +27,7 @@ extra:
 
     - title: pico8-badapple
       description: my attempts to squeeze Bad Apple into a Pico-8 cartridge
-      homepage: https://www.lexaloffle.com/bbs/?pid=151196#p
+      homepage: https://youtu.be/24_BtxYn8Ms
       repository: https://github.com/iliazeus/pico8-badapple
       language: Lua & JavaScript
       license: MIT
