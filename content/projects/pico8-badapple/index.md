@@ -32,3 +32,5 @@ Download [the carts] and unpack them into a subdirectory in your carts folder. Y
  ...
  └─ play.p8
 ```
+
+To then run the carts, change into this subdirectory in Pico-8 (`CD BADAPPLE`), and then load and run the "play" cart (`LOAD PLAY.P8`, `RUN`).
