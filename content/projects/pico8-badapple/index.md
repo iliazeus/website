@@ -17,3 +17,18 @@ extra:
 ---
 
 <video controls src="video-720.mp4" />
+
+## How to run locally
+
+Download [the carts] and unpack them into a subdirectory in your carts folder. You can find this folder by executing a `FOLDER` command in Pico-8. Assuming you named the subdirectory `badapple`, your carts directory should look something like this:
+
+[the carts]: https://github.com/iliazeus/pico8-badapp/releases/latest/download/carts.zip
+
+```
+┬─ carts
+└┬─ badapple
+ ├─ data_0.p8
+ ├─ data_1.p8
+ ...
+ └─ play.p8
+```
