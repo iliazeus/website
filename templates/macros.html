@@ -1,16 +1,17 @@
 {% macro badges(project) %}
+{% set extra = project.extra | default(value=project) %}
 <ul class="badges">
-  {% for badge in project.badges | default(value=[]) %}
+  {% for badge in extra.badges | default(value=[]) %}
     {% if badge == "language" %}
     <li><img
       title="Language"
-      alt="{{ project.language }}"
-      src="https://img.shields.io/static/v1?style=flat-square&label=%20&message={{ project.language | urlencode }}"
+      alt="{{ extra.language }}"
+      src="https://img.shields.io/static/v1?style=flat-square&label=%20&message={{ extra.language | urlencode }}"
     /></li>
     {% elif badge == "github" %}
     <li><a
       target="_blank"
-      href="https://github.com/{{ project.github }}"
+      href="https://github.com/{{ extra.github }}"
     ><img
       title="Source code on GitHub"
       alt="GitHub"
@@ -19,38 +20,38 @@
     {% elif badge == "github_license" %}
     <li><a
       target="_blank"
-      href="https://github.com/{{ project.github }}"
+      href="https://github.com/{{ extra.github }}"
       ><img
       title="Project license"
-      alt="{{ project.license }}"
-      src="https://img.shields.io/github/license/{{ project.github }}?style=flat-square"
+      alt="{{ extra.license }}"
+      src="https://img.shields.io/github/license/{{ extra.github }}?style=flat-square"
     /></a></li>
     {% elif badge == "github_release" %}
     <li><a
       target="_blank"
-      href="https://github.com/{{ project.github }}/releases/latest"
+      href="https://github.com/{{ extra.github }}/releases/latest"
     ><img
       title="Latest release on GitHub"
       alt="GitHub"
-      src="https://img.shields.io/github/v/release/{{ project.github }}?label=%20&logo=github&style=flat-square"
+      src="https://img.shields.io/github/v/release/{{ extra.github }}?label=%20&logo=github&style=flat-square"
     /></a></li>
     {% elif badge == "github_stars" %}
     <li><a
       target="_blank"
-      href="https://github.com/{{ project.github }}"
+      href="https://github.com/{{ extra.github }}"
       ><img
       title="GitHub stars"
       alt="GitHub stars"
-      src="https://img.shields.io/github/stars/{{ project.github }}?style=flat-square"
+      src="https://img.shields.io/github/stars/{{ extra.github }}?style=flat-square"
     /></a></li>
     {% elif badge == "vs_marketplace_rating" %}
     <li><a
       target="_blank"
-      href="https://marketplace.visualstudio.com/items?itemName={{ project.vs_marketplace }}"
+      href="https://marketplace.visualstudio.com/items?itemName={{ extra.vs_marketplace }}"
       ><img
       title="VS Marketplace rating"
       alt="{{ project.title }} - VS Marketplace"
-      src="https://img.shields.io/visual-studio-marketplace/stars/{{ project.vs_marketplace }}?style=flat-square"
+      src="https://img.shields.io/visual-studio-marketplace/stars/{{ extra.vs_marketplace }}?style=flat-square"
       /></a></li>
     {% else %}{{ badge }}{% endif %}
   {% endfor %}

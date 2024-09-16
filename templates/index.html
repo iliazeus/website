@@ -57,19 +57,26 @@
       {% for subsection_path in section.subsections %}
         {% set subsection = get_section(path=subsection_path) %}
         {% if subsection.extra.show_on_main | default(value="pages") == "link" %}
-          <hgroup>
-            <h2><a href="{{ subsection.path }}">{{ subsection.title }}</a></h2>
-            <p>{{ subsection.description | default(value="") }}</p>
-          </hgroup>
+        <hgroup>
+          <h2><a href="{{ subsection.path }}">{{ subsection.title }}</a></h2>
+          <p>{{ subsection.description | default(value="") }}</p>
+        </hgroup>
         {% elif subsection.extra.show_on_main | default(value="pages") == "projects" %}
           <hgroup>
             <h2>{{ subsection.title }}</h2>
             <p>{{ subsection.description | default(value="") | safe }}</p>
           </hgroup>
           <div class="projects">
-            {% for project in subsection.extra.projects %}
+            {% set projects = subsection.pages | filter(attribute="extra.featured") | sort(attribute="extra.featured") %}
+            {% for project in projects %}
               <article class="project">
-                <h3><a target="_blank" href="{{ project.homepage }}">{{ project.title }}</a></h3>
+                <h3>
+                  {% if project.extra.homepage %}
+                    <a target="_blank" href="{{ project.extra.homepage }}">{{ project.title }}</a>
+                  {% else %}
+                    <a href="{{ project.path | safe }}">{{ project.title }}</a>
+                  {% endif %}
+                </h3>
                 {{ macros::badges(project=project) }}
                 <p>{{ project.description | default(value="") | safe }}</p>
               </article>
