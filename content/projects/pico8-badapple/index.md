@@ -16,7 +16,7 @@ extra:
       href: https://youtu.be/24_BtxYn8Ms
 ---
 
-<video controls src="video-720.mp4" />
+<video controls src="video-720.mp4"></video>
 
 ## How to run locally
 
