@@ -57,6 +57,9 @@
           {% if page.extra.vs_marketplace %}
           <li><a target="_blank" href="https://marketplace.visualstudio.com/items?itemName={{ page.extra.vs_marketplace }}">Visual Studio Marketplace</a></li>
           {% endif %}
+          {% for link in page.extra.links | default(value=[]) %}
+          <li><a target="{{ link.target | default(value='_blank') }}" href="{{ link.href }}">{{ link.title }}</a></li>
+          {% endfor %}
         </ul>
       </hgroup>
 
