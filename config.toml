@@ -1,5 +1,5 @@
 # The URL the site will be built for
-base_url = "https://iliazeus.github.io"
+base_url = "https://iliazeus.lol"
 
 compile_sass = true
 build_search_index = false
