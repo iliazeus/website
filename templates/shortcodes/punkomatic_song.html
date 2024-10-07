@@ -41,7 +41,7 @@
 </style>
 
 <script type="module">
-  import * as pm from "/punkomatic-0.3.0.js";
+  import * as pm from "/punkomatic-0.5.1.js";
 
   const songDiv = document.querySelector(".punkomatic-song#{{ slug }}");
 
@@ -60,16 +60,23 @@
   playButton.onclick = async () => {
     playButton.onclick = null;
 
-    const blob = await pm.renderSong({
-      songData: "{{ body | safe }}",
-      sampleDir: "/punkomatic-samples/",
-      log: (text, progress) =>
-        (audioDiv.innerText = progress ? `${text} (${progress.current}/${progress.total})` : text),
+    audioDiv.innerText = "parsing song data...";
+    const song = pm.parseSong("{{ body | safe }}");
+
+    audioDiv.innerText = "rendering song...";
+    const audio = await pm.renderSong(song, {
+      baseSoundPath: "/punkomatic-samples/",
+      onprogress: (c, t) => {
+        audioDiv.innerText = `rendering song... ${(100 * c / t).toFixed(2)}% done`;
+      },
     });
+
+    audioDiv.innerText = "encoding song..."
+    const file = await pm.encodeSong(song, audio);
 
     const audioElt = document.createElement("audio");
     audioElt.controls = true;
-    audioElt.src = URL.createObjectURL(blob);
+    audioElt.src = URL.createObjectURL(file);
     audioDiv.replaceChildren(audioElt);
 
     playButton.onclick = () => audioElt.play();
