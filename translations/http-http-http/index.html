@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="ru">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="description" content="http:&#x2F;&#x2F;http:&#x2F;&#x2F;http:&#x2F;&#x2F;@http:&#x2F;&#x2F;http:&#x2F;&#x2F;?http:&#x2F;&#x2F;#http:&#x2F;&#x2F;. Да что вообще такое этот ваш url?. iliazeus" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <link rel="alternate" type="application/atom+xml" href="https://iliazeus.lol/atom.xml">
+
+    <link
+      rel="preload" as="style"
+      href="https://code.cdn.mozilla.net/fonts/fira.css"
+      onload="this.onload=null;this.rel='stylesheet'"
+    />
+
+    <style>.if-not-js { display: none !important }</style>
+    <noscript><style>
+      .if-js { display: none !important }
+      .if-not-js { display: unset !important }
+    </style></noscript>
+
+    <script src="/theme.js"></script>
+    <link rel="stylesheet" href="/style.css" />
+
+    <title>http:&#x2F;&#x2F;http:&#x2F;&#x2F;http:&#x2F;&#x2F;@http:&#x2F;&#x2F;http:&#x2F;&#x2F;?http:&#x2F;&#x2F;#http:&#x2F;&#x2F; | iliazeus</title>
+  </head>
+
+  <body>
+    <a href="#" class="local if-js theme-toggle" style="cursor: pointer; position: absolute; right: 8px; top: 8px">toggle dark theme</a>
+
+    <header>
+      <hgroup>
+        <h1><a href="/" title="go to main page">iliazeus</a></h1>
+        <nav>
+          <ul class="horizontal small">
+            <li><a rel="me" href="https://github.com/iliazeus">github</a></li>
+            <li><a rel="me" href="https://habr.com/users/iliazeus">habr</a></li>
+            <li><a rel="me" href="https://lor.sh/@iliazeus">mastodon</a></li>
+            <li><a rel="me" href="mailto:iliazeus@proton.me">mailto</a></li>
+          </ul>
+        </nav>
+        <p>илья, иль не я</p>
+      </hgroup>
+    </header>
+
+    <main>
+      <hgroup>
+        <h2>http:&#x2F;&#x2F;http:&#x2F;&#x2F;http:&#x2F;&#x2F;@http:&#x2F;&#x2F;http:&#x2F;&#x2F;?http:&#x2F;&#x2F;#http:&#x2F;&#x2F;</h2>
+        <ul class="horizontal">
+          <li>2022-09-09</li>
+          <li>ru</li>
+          
+          <li><a target="_blank" href="https:&#x2F;&#x2F;daniel.haxx.se&#x2F;blog&#x2F;2022&#x2F;09&#x2F;08&#x2F;http-http-http-http-http-http-http&#x2F;"  rel="author" >by Daniel Stenberg</a></li>
+          
+          <li><a target="_blank" href="https:&#x2F;&#x2F;habr.com&#x2F;ru&#x2F;articles&#x2F;687402&#x2F;"  rel="alternate" >habr</a></li>
+          
+        </ul>
+      </hgroup>
+
+      <p>Пару дней назад я опубликовал этот твит:</p>
+<figure class="border">
+<img src="tweet.png" alt="&quot;http://http://http://@http://http://?http://#http://&quot; is a legitimate URL" />
+</figure>
+<p>Учитывая то, насколько много я получил комментов и ответов, я решил разобрать это подробнее. Правда ли это валидный URL? Во что он парсится? <em>Что вообще такое URL?</em></p>
+<span id="continue-reading"></span><h3 id="curl"><code>curl</code></h3>
+<p>Начнем с <code>curl</code>. Он разбирает эту строку, как и должен — как валидный URL. Чтобы было понятнее, я раскрасил его составные части:</p>
+<figure class="border">
+<img src="http-http-http.png" />
+</figure>
+<p><strong>Черная</strong> часть <code>http</code> — схема URL, указывает на протокол HTTP. Строка <code>://</code> разделяет схему и <em>authority part</em> (все, что до пути).</p>
+<p><strong>Красная</strong> часть <code>http</code> — имя пользователя; за ним следует <code>:</code> (двоеточие)</p>
+<p><strong>Зеленая</strong> часть <code>//http://</code> — пароль; отделен знаком <code>@</code>.</p>
+<p><strong>Синяя</strong> часть <code>http:</code> — имя хоста, включая двоеточие на конце. После этого двоеточия должен идти номер порта, но если его нет, то <code>curl</code> подставляет порт по умолчанию; браузеры поступают аналогично. Порт по умолчанию для HTTP имеет номер <code>80</code>.</p>
+<p><strong>Сиреневая</strong> часть <code>//http://</code> — путь. В пути вполне могут встретиться и несколько слешей подряд, и двоеточие. После пути стоит <code>?</code> (знак вопроса).</p>
+<p><strong>Оранжевая</strong> часть <code>http://</code> — query. Все, что между <code>?</code> и <code>#</code>.</p>
+<p><strong>Бирюзовая</strong> часть <code>http://</code> — fragment, он же anchor, он же якорь, как его только не называют. Все, что справа от <code>#</code>.</p>
+<p>Можете сами попробовать запросить этот URL с помощью <code>curl</code>:</p>
+<pre data-lang="sh" class="language-sh z-code"><code class="language-sh" data-lang="sh"><span class="z-source z-shell z-bash"><span class="z-meta z-function-call z-shell"><span class="z-variable z-function z-shell">curl</span></span><span class="z-meta z-function-call z-arguments z-shell"> <span class="z-string z-quoted z-double z-shell"><span class="z-punctuation z-definition z-string z-begin z-shell">&quot;</span>http://http://http://@http://http://?http://#http://<span class="z-punctuation z-definition z-string z-end z-shell">&quot;</span></span><span class="z-variable z-parameter z-option z-shell"><span class="z-punctuation z-definition z-parameter z-shell"> --</span>resolve</span> http:80:127.0.0.1</span>
+</span></code></pre>
+<h3 id="parser-url-v-curl">Парсер URL в <code>curl</code></h3>
+<p>Парсеру URL в <code>curl</code> уже пара десятков лет. Один из основных принципов его доработки — <strong>не ломать существующие скрипты и приложения</strong>. Поэтому даже если его поведение где-то расходится со стандартами, оно, вероятно, останется таким навсегда.</p>
+<p>В самом начале разработки, парсер в <code>curl</code> проглатывал очень много вольностей в URL. С годами он становился все более строгим, но следы изначального поведения еще видны тут и там. Кроме того, мы были вынуждены дорабатывать парсер, чтобы он разбирал URL из реального мира, даже если они не соответствуют никаким стандартам. Если что-то работает в браузерах и других приложениях, это должно работать и в <code>curl</code>.</p>
+<h3 id="standarty-url">Стандарты URL</h3>
+<p>Как я уже писал ранее, у понятия URL <a href="https://daniel.haxx.se/blog/2016/05/11/my-url-isnt-your-url/">на самом деле нет четкого определения</a>.</p>
+<p>Есть определение UR<strong>I</strong> — не UR<strong>L</strong>! — в <a href="https://datatracker.ietf.org/doc/html/rfc3986">RFC 3986</a>. Есть <a href="https://url.spec.whatwg.org/">спецификация WHATWG</a>, которой следуют браузеры (или пытаются). А еще есть множество конкретных реализаций разной степени строгости, которые совершенно не обязательно следуют хоть какому-то из этих двух определений.</p>
+<p>Если приглядеться повнимательней, то вряд ли хоть какие-то две реализации будут полностью соответствовать друг другу.</p>
+<p>Поэтому если попытаться использовать наш безумный URL где-то в реальном мире, нельзя сказать точно, примут его или нет. Твиттер, к примеру, не понял, что это URL. И даже если он окажется валидным для них, они, скорее всего, распарсят его по-другому.</p>
+<h3 id="python-i-urllib">Python и <code>urllib</code></h3>
+<p><a href="https://twitter.com/CubicleApril/status/1567191200813178891">April King</a> протестировала наш безумный URL в питоновской <code>urllib</code>. И хотя он и разобрался успешно, но совершенно по-другому:</p>
+<pre data-lang="py" class="language-py z-code"><code class="language-py" data-lang="py"><span class="z-source z-python"><span class="z-meta z-function-call z-python"><span class="z-meta z-qualified-name z-python"><span class="z-variable z-function z-python"><span class="z-meta z-generic-name z-python">ParseResult</span></span></span></span><span class="z-meta z-function-call z-arguments z-python"><span class="z-punctuation z-section z-arguments z-begin z-python">(</span><span class="z-variable z-parameter z-python">scheme</span><span class="z-keyword z-operator z-assignment z-python">=</span><span class="z-meta z-string z-python"><span class="z-string z-quoted z-single z-python"><span class="z-punctuation z-definition z-string z-begin z-python">&#39;</span></span></span><span class="z-meta z-string z-python"><span class="z-string z-quoted z-single z-python">http<span class="z-punctuation z-definition z-string z-end z-python">&#39;</span></span></span><span class="z-punctuation z-separator z-arguments z-python">,</span>
+</span></span><span class="z-source z-python"><span class="z-meta z-function-call z-arguments z-python">            <span class="z-variable z-parameter z-python">netloc</span><span class="z-keyword z-operator z-assignment z-python">=</span><span class="z-meta z-string z-python"><span class="z-string z-quoted z-single z-python"><span class="z-punctuation z-definition z-string z-begin z-python">&#39;</span></span></span><span class="z-meta z-string z-python"><span class="z-string z-quoted z-single z-python">http:<span class="z-punctuation z-definition z-string z-end z-python">&#39;</span></span></span><span class="z-punctuation z-separator z-arguments z-python">,</span>
+</span></span><span class="z-source z-python"><span class="z-meta z-function-call z-arguments z-python">            <span class="z-variable z-parameter z-python">path</span><span class="z-keyword z-operator z-assignment z-python">=</span><span class="z-meta z-string z-python"><span class="z-string z-quoted z-single z-python"><span class="z-punctuation z-definition z-string z-begin z-python">&#39;</span></span></span><span class="z-meta z-string z-python"><span class="z-string z-quoted z-single z-python">//http://@http://http://<span class="z-punctuation z-definition z-string z-end z-python">&#39;</span></span></span><span class="z-punctuation z-separator z-arguments z-python">,</span>
+</span></span><span class="z-source z-python"><span class="z-meta z-function-call z-arguments z-python">            <span class="z-variable z-parameter z-python">params</span><span class="z-keyword z-operator z-assignment z-python">=</span><span class="z-meta z-string z-python"><span class="z-string z-quoted z-single z-python"><span class="z-punctuation z-definition z-string z-begin z-python">&#39;</span></span></span><span class="z-meta z-string z-python"><span class="z-string z-quoted z-single z-python"><span class="z-punctuation z-definition z-string z-end z-python">&#39;</span></span></span><span class="z-punctuation z-separator z-arguments z-python">,</span>
+</span></span><span class="z-source z-python"><span class="z-meta z-function-call z-arguments z-python">            <span class="z-variable z-parameter z-python">query</span><span class="z-keyword z-operator z-assignment z-python">=</span><span class="z-meta z-string z-python"><span class="z-string z-quoted z-single z-python"><span class="z-punctuation z-definition z-string z-begin z-python">&#39;</span></span></span><span class="z-meta z-string z-python"><span class="z-string z-quoted z-single z-python">http://<span class="z-punctuation z-definition z-string z-end z-python">&#39;</span></span></span><span class="z-punctuation z-separator z-arguments z-python">,</span>
+</span></span><span class="z-source z-python"><span class="z-meta z-function-call z-arguments z-python">            <span class="z-variable z-parameter z-python">fragment</span><span class="z-keyword z-operator z-assignment z-python">=</span><span class="z-meta z-string z-python"><span class="z-string z-quoted z-single z-python"><span class="z-punctuation z-definition z-string z-begin z-python">&#39;</span></span></span><span class="z-meta z-string z-python"><span class="z-string z-quoted z-single z-python">http://<span class="z-punctuation z-definition z-string z-end z-python">&#39;</span></span></span><span class="z-punctuation z-section z-arguments z-end z-python">)</span></span>
+</span></code></pre>
+<p>Судя по ответам на мой твит, такой интерпретации придерживаются еще несколько парсеров. Вполне возможно, у них на самом деле один и тот же парсер под капотом.</p>
+<h3 id="javascript">JavaScript</h3>
+<p><a href="https://twitter.com/meduzen/status/1567177588669300736">Meduz</a> показал мне, как этот URL разбирает JavaScript, и это оказалось очень похоже на наш результат с Python:</p>
+<figure class="border">
+<img src="js-url.jpeg" />
+</figure>
+<h3 id="firefox-i-chrome">Firefox и Chrome</h3>
+<p>Я дописал <code>127.0.0.1 http</code> в <code>/etc/hosts</code>, и скопипастил наш безумный URL в адресную строку Firefox. Браузер переписал его вот так:</p>
+<pre class="z-code"><code><span class="z-text z-plain">http://http//http://@http://http://?http://#http://
+</span></code></pre>
+<p>Второе слева двоеточие съелось, все остальное осталось как прежде. Но, тем не менее, Firefox воспринял это как валидный URL, и открыл страницу с моего локального сервера.</p>
+<p>Chrome повел себя точно так же.</p>
+<h3 id="rfc-3986">RFC 3986</h3>
+<p>В комментах кто-то заметил, что слэши в authority, не закодированные urlencode, не соответствуют RFC 3986. Секция 3.2 этого документа гласит:</p>
+<blockquote>
+<p>The authority component is preceded by a double slash ("//") and is terminated by the next slash ("/"), question mark ("?"), or number sign ("#") character, or by the end of the URI.\</p>
+</blockquote>
+<p>Это значит, что в нашем пароле <code>//http://</code> слеши в начале и конце должны быть заменены на <code>%2f</code>. То есть, получается, URL не валидный?</p>
+<p><strong>Update (от автора):</strong> похоже, что он все еще считается валидным, просто должен быть разобран иначе, чем это делает <code>curl</code>.</p>
+<h3 id="https">HTTPS</h3>
+<p>Этот URL может быть переписан с использованием HTTPS:</p>
+<pre class="z-code"><code><span class="z-text z-plain">https://https://https://@https://https://?https://#https://
+</span></code></pre>
+<p>Но я не использовал эту форму по нескольким причинам:</p>
+<ul>
+<li>Это на семь символов длиннее.</li>
+<li>Это сложнее протестировать локально, без возни с сертификатами.</li>
+</ul>
+
+    </main>
+
+    <footer>
+      <nav>
+        <ul class="horizontal small">
+          <li><a rel="me" href="https://github.com/iliazeus">github</a></li>
+          <li><a rel="me" href="https://habr.com/users/iliazeus">habr</a></li>
+          <li><a rel="me" href="https://lor.sh/@iliazeus">mastodon</a></li>
+          <li><a rel="me" href="mailto:iliazeus@proton.me">mailto</a></li>
+          <li>made with <a href="https://www.getzola.org/">Zola</a></li>
+        </ul>
+      </nav>
+    </footer>
+  </body>
+</html>

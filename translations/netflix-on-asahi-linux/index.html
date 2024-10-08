@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="ru">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="description" content="Как я заставил работать Netflix на Asahi Linux. Трудности с widevine на linux на apple silicon. iliazeus" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <link rel="alternate" type="application/atom+xml" href="https://iliazeus.lol/atom.xml">
+
+    <link
+      rel="preload" as="style"
+      href="https://code.cdn.mozilla.net/fonts/fira.css"
+      onload="this.onload=null;this.rel='stylesheet'"
+    />
+
+    <style>.if-not-js { display: none !important }</style>
+    <noscript><style>
+      .if-js { display: none !important }
+      .if-not-js { display: unset !important }
+    </style></noscript>
+
+    <script src="/theme.js"></script>
+    <link rel="stylesheet" href="/style.css" />
+
+    <title>Как я заставил работать Netflix на Asahi Linux | iliazeus</title>
+  </head>
+
+  <body>
+    <a href="#" class="local if-js theme-toggle" style="cursor: pointer; position: absolute; right: 8px; top: 8px">toggle dark theme</a>
+
+    <header>
+      <hgroup>
+        <h1><a href="/" title="go to main page">iliazeus</a></h1>
+        <nav>
+          <ul class="horizontal small">
+            <li><a rel="me" href="https://github.com/iliazeus">github</a></li>
+            <li><a rel="me" href="https://habr.com/users/iliazeus">habr</a></li>
+            <li><a rel="me" href="https://lor.sh/@iliazeus">mastodon</a></li>
+            <li><a rel="me" href="mailto:iliazeus@proton.me">mailto</a></li>
+          </ul>
+        </nav>
+        <p>илья, иль не я</p>
+      </hgroup>
+    </header>
+
+    <main>
+      <hgroup>
+        <h2>Как я заставил работать Netflix на Asahi Linux</h2>
+        <ul class="horizontal">
+          <li>2023-03-10</li>
+          <li>ru</li>
+          
+          <li><a target="_blank" href="https:&#x2F;&#x2F;www.da.vidbuchanan.co.uk&#x2F;blog&#x2F;netflix-on-asahi.html"  rel="author" >by David Buchanan</a></li>
+          
+          <li><a target="_blank" href="https:&#x2F;&#x2F;habr.com&#x2F;ru&#x2F;articles&#x2F;721444&#x2F;"  rel="alternate" >habr</a></li>
+          
+        </ul>
+      </hgroup>
+
+      <p>Год назад я купил макбук. Полгода назад macOS на нем сказала "ой, все", и он окирпичился. Я решил не переустанавливать систему, а попробовать Asahi Linux, и пока что не пожалел об этом. Хотя одна вещь все же раздражала — не работали Netflix и официальное приложение Spotify.</p>
+<p>Если честно, Netflix мне не очень-то и нужен — у BitTorrent сейчас намного лучше UX. Но к Spotify я очень привязался, и предпочитаю интерфейс именно у официального клиента, хотя многим это и покажется странным. Но официального клиента Spotify для Linux на архитектуре aarch64 пока что не существует.</p>
+<p>Есть, конечно, web-версия. Вернее, была бы, если бы не ошибка:</p>
+<blockquote>
+<p>Playback of protected content is not enabled.</p>
+</blockquote>
+<p>«Воспроизведение защищенного контента отключено», а конкрентее — не установлен модуль <a href="https://en.wikipedia.org/wiki/Widevine">Widevine DRM</a>. По этой же причине не работает и Netflix.</p>
+<p>Итак, мы начинаем наш челлендж попробуй не нарушить DMCA 2023! Наша задача — понять, как смотреть Netflix на Asahi Linux, не обходя и не ломая DRM. (Без этого условия решения уместится в <a href="https://twitter.com/David3141593/status/1080606827384131590">280 знаков</a>).</p>
+<h2 id="ustanovka-widevine">Установка Widevine</h2>
+<p><img src="https://iliazeus.lol/translations/netflix-on-asahi-linux/one-does-not-simply.png" alt="one does not simply..." /></p>
+<p>К сожалению, нельзя так просто взять и установить Widevine. Единственный официально поддерживаемый способ запустить Widevine — Chrome + Linux + x86_64. Внимательный читатель, конечно, сразу задаст вопросы: почему оно тогда работает и в Firefox? Почему работает на Android, это же тоже Linux на aarch64? Почему работает на Raspberry Pi?</p>
+<p>Давайте разберем по порядку.</p>
+<h3 id="pochemu-rabotaet-v-firefox-linux-x86-64">Почему работает в Firefox + Linux + x86_64?</h3>
+<p>Веб-страницы получают доступ к модулям DRM через API <a href="https://www.w3.org/TR/encrypted-media/">Encrypted Media Extensions</a>. В самом Chrome DRM не реализован, он делегирует это одной из библиотек CDM, или Content Decryption Module. В случае Chrome + Linux + x86_64, это библиотека <code>libwedevinecdm.so</code> — проприетарный блоб, заглядывать в который нам запрещено.</p>
+<p>К счастью, мы знаем, как с этим блобом общаться: <a href="https://chromium.googlesource.com/chromium/cdm/">заголовочные файлы для C++</a> доступны в рамках проекта Chromium. Это позволяет Firefox использовать у себя ровно ту же проприетарную <code>libwidevinecdm.so</code>, взятую в бинарном виде непосредственно из Chrome. К сожалению, для Asahi Linux нельзя сделать так же — готовой библиотеки для Chrome + Linux + aarch64 не существует.</p>
+<h3 id="pochemu-rabotaet-v-android-aarch64">Почему работает в Android + aarch64?</h3>
+<p>Если вкратце, DRM на Android в целом работает по-другому. API сильно различаются, взять скомпилированный модуль Widevine для Android просто так не получится, а разобрать его мешает DMCA.</p>
+<h3 id="pochemu-rabotaet-na-raspberry-pi">Почему работает на Raspberry Pi?</h3>
+<p>Как я уже сказал, связка Chrome + Linux + aarch64 официально не поддерживается.</p>
+<p>Я солгал.</p>
+<p>Хромбуки. В хромбуках работает Chrome, установлен плюс-минус Linux, и многие из них на aarch64. Рано или поздно люди это осознали, и написали <a href="https://forums.raspberrypi.com/viewtopic.php?t=347736">утилиту</a>, чтобы вытащить <code>libwidevinecdm.so</code> из recovery-образов для хромбуков. Raspberry Pi, насколько я знаю, достает реализацию Widevine именно так, даже упаковывая в <code>.deb</code>-пакет.</p>
+<p>К сожалению, есть загвоздка. Хотя в хромбуках есть aarch64-процессоры и aarch64-ядра Linux, весь их userspace все еще скомпилирован для 32-битной armv7l. Для Raspberry Pi это не проблема, но Apple Silicon не способен переварить 32-битный код. Проблема...</p>
+<p>...не проблема! Точнее, <em>уже</em> не проблема.</p>
+<p>Несколько месяцев назад, когда я только занялся Widevine для Asahi, все было так. Но пару недель назад где-то в Google таки наступил 21 век, и на новых хромбуках userspace компилируется для aarch64. Значит, <code>libwidevinecdm.so</code> для Linux + aarch64 теперь можно вытащить из recovery-образов ChromeOS, что Pi Foundation <a href="https://forums.raspberrypi.com/viewtopic.php?t=347736">уже успела сделать</a>.</p>
+<p>Итак, все готово для...</p>
+<h2 id="widevine-dlia-arch-linux-na-arm">Widevine для Arch Linux на ARM</h2>
+<p>Конечно, не все так просто. ChromeOS — это не совсем Linux; кроме прочего, в его <code>glibc</code> есть не совместимые с Linux патчи. Если просто взять и загрузить <code>libwidevinecdm.so</code>, получим segfault где-то в недрах <code>glibc</code>.</p>
+<p>Эту проблему решает пакет <a href="https://aur.archlinux.org/packages/glibc-widevine">glibc-widevine</a>. Он патчит <code>glibc</code> специально для совместимости с Widevine. Похожие патчи есть и в <code>glibc</code> для Raspbian, разве что там они идут из коробки.</p>
+<p>Также нужно пересобрать Chromium с поддержкой Widevine — на Linux + aarch64 это официально не поддерживается, поэтому при стандартной сборке он отключен. Для этого также есть <a href="https://github.com/archlinuxarm/PKGBUILDs/blob/ad4a45f2/extra/chromium/0001-widevine-support-for-arm.patch">патч</a>.</p>
+<p>Итого:</p>
+<ul>
+<li>Google публикует образ ChromeOS для aarch64 (включая userspace);</li>
+<li>Pi Foundation, или кто-то еще, с помощью скрипта извлекают оттуда блоб с Widevine;</li>
+<li>блоб упаковывают в <code>.deb</code>-пакет для Raspbian;</li>
+<li>на <code>glibc</code> накатываются патчи для совместимости;</li>
+<li>собирается патченный Chromium для ARM со включенным Widevine;</li>
+<li>???</li>
+</ul>
+<h3 id="problema">Проблема</h3>
+<p>Asahi Linux собирается с поддержкой <a href="https://asahilinux.org/2022/03/asahi-linux-alpha-release/#known-broken-applications">страниц памяти по 16K</a>. Блоб Widevine поддерживает только 4K. Пересобрать ядро под другой размер страниц, конечно, можно, но сейчас для этого нужны костыли и много времени. А просто дизассемблировать и поправить проприетарный блоб нельзя.</p>
+<figure>
+<img src="dmca-violation-colorized.png" />
+<figcaption>Программист заглянул внутрь блоба Widevine. Фото в цвете.</figcaption>
+</figure>
+<p>Чтобы понять, в чем именно проблема, посмотрим на то, как <code>libwidevinecdm.so</code> загружается в память. Как и другие <code>.so</code>-библиотеки, внутри это ELF — Executable and Linkable Format — который разбирается загрузчиком — ядром или <code>ld.so</code> — и сообщает ему, как именно загрузить код и данные в память и подготовить их к исполнению.</p>
+<p>Внутри файлов ELF есть Program Header Table — таблица заголовков, описывающих сегменты программы. Для сегментов с типом <code>LOAD</code> там описано, как загрузить этот сегмент в память, и разрешить ли эту память читать/писать/исполнять.</p>
+<p>С выравниванием этих сегментов и есть проблема. Они загружаются в память вызовами <code>mmap()</code>, который <a href="https://man7.org/linux/man-pages/man2/mmap.2.html">требует</a>:</p>
+<ul>
+<li>чтобы смещение сегмента от начала файла было кратно размеру страницы памяти;</li>
+<li>чтобы адрес в памяти, куда загружается сегмент, был выровнен по границе страницы.</li>
+</ul>
+<p>Загрузчик <a href="https://github.com/bminor/glibc/blob/10f980d3/elf/dl-load.c#L1134-L1143">проверяет</a> эти ограничения:</p>
+<pre data-lang="c" class="language-c z-code"><code class="language-c" data-lang="c"><span class="z-source z-c"><span class="z-keyword z-control z-c">case</span> PT_LOAD<span class="z-punctuation z-separator z-c">:</span>
+</span><span class="z-source z-c">    <span class="z-comment z-block z-c"><span class="z-punctuation z-definition z-comment z-c">/*</span> A load command tells us to map in part of the file.
+</span></span><span class="z-source z-c"><span class="z-comment z-block z-c">       We record the load commands and process them all later.  <span class="z-punctuation z-definition z-comment z-c">*/</span></span>
+</span><span class="z-source z-c">    <span class="z-keyword z-control z-c">if</span> <span class="z-meta z-group z-c"><span class="z-punctuation z-section z-group z-begin z-c">(</span><span class="z-meta z-function-call z-c"><span class="z-variable z-function z-c">__glibc_unlikely</span> <span class="z-meta z-group z-c"><span class="z-punctuation z-section z-group z-begin z-c">(</span></span></span><span class="z-meta z-function-call z-c"><span class="z-meta z-group z-c"><span class="z-meta z-group z-c"><span class="z-punctuation z-section z-group z-begin z-c">(</span><span class="z-meta z-group z-c"><span class="z-punctuation z-section z-group z-begin z-c">(</span>ph<span class="z-punctuation z-accessor z-c">-&gt;</span>p_vaddr <span class="z-keyword z-operator z-arithmetic z-c">-</span> ph<span class="z-punctuation z-accessor z-c">-&gt;</span>p_offset<span class="z-punctuation z-section z-group z-end z-c">)</span></span>
+</span></span></span></span></span><span class="z-source z-c"><span class="z-meta z-group z-c"><span class="z-meta z-function-call z-c"><span class="z-meta z-group z-c"><span class="z-meta z-group z-c">         <span class="z-keyword z-operator z-c">&amp;</span> <span class="z-meta z-group z-c"><span class="z-punctuation z-section z-group z-begin z-c">(</span><span class="z-meta z-function-call z-c"><span class="z-variable z-function z-c">GLRO</span><span class="z-meta z-group z-c"><span class="z-punctuation z-section z-group z-begin z-c">(</span></span></span><span class="z-meta z-function-call z-c"><span class="z-meta z-group z-c">dl_pagesize</span></span><span class="z-meta z-function-call z-c"><span class="z-meta z-group z-c"><span class="z-punctuation z-section z-group z-end z-c">)</span></span></span> <span class="z-keyword z-operator z-arithmetic z-c">-</span> <span class="z-constant z-numeric z-integer z-decimal z-c">1</span><span class="z-punctuation z-section z-group z-end z-c">)</span></span><span class="z-punctuation z-section z-group z-end z-c">)</span></span> <span class="z-keyword z-operator z-comparison z-c">!=</span> <span class="z-constant z-numeric z-integer z-decimal z-c">0</span></span></span><span class="z-meta z-function-call z-c"><span class="z-meta z-group z-c"><span class="z-punctuation z-section z-group z-end z-c">)</span></span></span><span class="z-punctuation z-section z-group z-end z-c">)</span></span>
+</span><span class="z-source z-c">      <span class="z-meta z-block z-c"><span class="z-punctuation z-section z-block z-begin z-c">{</span>
+</span></span><span class="z-source z-c"><span class="z-meta z-block z-c">        errstring
+</span></span><span class="z-source z-c"><span class="z-meta z-block z-c">    <span class="z-keyword z-operator z-assignment z-c">=</span> <span class="z-meta z-function-call z-c"><span class="z-variable z-function z-c">N_</span><span class="z-meta z-group z-c"><span class="z-punctuation z-section z-group z-begin z-c">(</span></span></span><span class="z-meta z-function-call z-c"><span class="z-meta z-group z-c"><span class="z-string z-quoted z-double z-c"><span class="z-punctuation z-definition z-string z-begin z-c">&quot;</span>ELF load command address/offset not page-aligned<span class="z-punctuation z-definition z-string z-end z-c">&quot;</span></span></span></span><span class="z-meta z-function-call z-c"><span class="z-meta z-group z-c"><span class="z-punctuation z-section z-group z-end z-c">)</span></span></span><span class="z-punctuation z-terminator z-c">;</span>
+</span></span><span class="z-source z-c"><span class="z-meta z-block z-c">        <span class="z-keyword z-control z-flow z-goto z-c">goto</span> lose<span class="z-punctuation z-terminator z-c">;</span>
+</span></span><span class="z-source z-c"><span class="z-meta z-block z-c">      <span class="z-punctuation z-section z-block z-end z-c">}</span></span>
+</span></code></pre>
+<p>Чтобы не стать <code>goto loser</code>ом, необходимо убедиться, что <code>(vaddr - offset) % pagesize == 0</code>, где <code>vaddr</code> — Virtual (memory) Address — адрес в памяти, куда загрузить сегмент, а <code>offset</code> — смещение данных в файле библиотеки.</p>
+<p>Вот Program Header Table для моей копии <code>libwidevinecdm.so</code>:</p>
+<pre class="z-code"><code><span class="z-text z-plain">Type             Offset     VAddr      FileSize   MemSize    Align      Prot
+</span><span class="z-text z-plain">PT_PHDR          0x00000040 0x00000040 0x00000230 0x00000230 0x00000008 r--
+</span><span class="z-text z-plain">
+</span><span class="z-text z-plain">PT_LOAD          0x00000000 0x00000000 0x00904290 0x00904290 0x00001000 r-x
+</span><span class="z-text z-plain">PT_LOAD          0x00904290 0x00905290 0x00007500 0x00007500 0x00001000 rw-
+</span><span class="z-text z-plain">PT_LOAD          0x0090b790 0x0090d790 0x00000df0 0x00c36698 0x00001000 rw-
+</span><span class="z-text z-plain">
+</span><span class="z-text z-plain">PT_TLS           0x00904290 0x00905290 0x00000018 0x00000018 0x00000008 r--
+</span><span class="z-text z-plain">PT_DYNAMIC       0x00909618 0x0090a618 0x00000220 0x00000220 0x00000008 rw-
+</span><span class="z-text z-plain">PT_GNU_RELRO     0x00904290 0x00905290 0x00007500 0x00007d70 0x00000001 r--
+</span><span class="z-text z-plain">PT_GNU_EH_FRAME  0x00524a24 0x00524a24 0x000010fc 0x000010fc 0x00000004 r--
+</span><span class="z-text z-plain">PT_GNU_STACK     0x00000000 0x00000000 0x00000000 0x00000000 0x00000000 rw-
+</span><span class="z-text z-plain">PT_NOTE          0x00000270 0x00000270 0x00000024 0x00000024 0x00000004 r--
+</span></code></pre>
+<p>Я выделил пустыми строками три сегмента <code>PT_LOAD</code>.</p>
+<p>Если pagesize == 0x1000 (4 КБ), то ограничения соблюдаются для всех сегментов. Но стоит увеличить pagesize до 0x4000 (16 КБ), как в Asahi Linux, как второй и третий сегменты <code>PT_LOAD</code> станут его нарушать. Для других сегментов это не так важно — они не загружаются напрямую через <code>mmap()</code>.</p>
+<h3 id="reshenie">Решение</h3>
+<p>Менять положение сегментов относительно друг друга в памяти нельзя — это сломает в коде относительные смещения из одного сегмента в другой. Более того, это библиотека DRM — она злится на любые изменения себя в памяти. А на копание в коде этой библиотеки злится DMCA.</p>
+<p>Посмотрим еще раз на наше злополучное условие <code>(vaddr - offset) % pagesize == 0</code>. Менять <code>vaddr</code> мы не можем по причинам выше. Но мы можем поменять <code>offset</code>, если переместим сегменты в самом файле библиотеки.</p>
+<p>Для первого <code>PT_LOAD</code> ничего делать не нужно, но вот для второго получаем <code>vaddr - offset == 0x00905290 - 0x00904290 == 0x1000</code>. Исправим это, добавив <code>0x1000</code> байт паддинга между первым и вторым сегментами в файле, не забыв поправить <code>offset</code>. Теперь <code>vaddr - offset == 0x00904290 - 0x00904290 == 0</code>. С третьим сегментом поступим аналогично.</p>
+<p>При добавлении паддинга в ELF нужно поправить и некоторые другие поля. Но мы меняем только сам ELF-файл — загруженный в память код будет идентичным оригиналу, запущенному на системе со страницами памяти по 4K. Поэтому библиотека при самопроврке ничего не заподозрит и не разозлится.</p>
+<h3 id="granuliarnost-razreshenii">Гранулярность разрешений</h3>
+<p>В системах с 4K-страницами каждые 4КБ памяти могут иметь свой набор разрешений на чтение/запись/исполнение. Библиотка была скомпилирована с учетом этой возможности. Но на системах с 16K-страницами гранулярность таких разрешений 16КБ. Это порождает две проблемы.</p>
+<p>Во-первых, некоторые секции <code>.text</code> — исполняемый код — и секции <code>.data</code> — данные в памяти — теперь имеют общие страницы. Первым нужен доступ на исполнение, вторым — на чтение и запись. Дать и то, и другое можно, но это потенциальная дыра в безопасности. Пока что я не нашел способ этого избежать.</p>
+<p>Во-вторых, по той же причине пришлось отключить RELRO — Relocation Read-Only — еще одну меру безопасности, которая отмечает некоторые секции как read-only после загрузки.</p>
+<p>Само по себе это — не уязвимости, но это ослабление защиты против потенциально уже существующих. Злоумышленник, теоретически, может записать в такую страницу произвольный код, а затем исполнить его. На практике, ему нужно для начала будет найти уязвимость в браузере. Если это вас пугает, можно использовать для Netflix отдельный браузер.</p>
+<h3 id="patching-elf">Патчинг ELF</h3>
+<p>Сначала я пытался использовать <a href="https://github.com/lief-project/LIEF">LIEF</a>, но то ли из-за багов, то ли из-за кривости рук у меня не вышло. В конце концов, я в кофеиновом трансе расчехлил <code>hexedit</code> и поправил все руками. К моему удивлению, это сработало!</p>
+<p>Не уверен, что я могу легально распространять патченый ELF, но я написал <a href="https://gist.github.com/DavidBuchanan314/c6b97add51b97e4c3ee95dc890f9e3c8">скрипт на питоне</a>, которым вы можете пропатчить его сами. Достаточно запустить этот скрипт, и вот у вас уже есть <code>libwedevinecdm.so</code>, которую может загрузить Firefox под Asahi Linux!</p>
+<h2 id="final-nye-shtrikhi">Финальные штрихи</h2>
+<p>Из-за странностей в <code>glibc</code> на ChromeOS, о которых я говорил ранее, мне пришлось написать библиотечку с функциями <code>__aarch64_ldadd4_acq_rel</code> и <code>__aarch64_swp4_acq_rel</code>, которую я загружал через <code>LD_PRELOAD</code>. Это выглядело не очень красиво, и я стал думать, как можно добавить эти функции в сам <code>libwidevinecdm.so</code>.</p>
+<p>Еще помните, что нам нужно было добавить туда 0x1000 байтов для выравнивания? Они попадают в исполняемую память, поэтому я засунул эти функции туда! Я боялся, что библиотеке это не понравится, но, кажется, она их не заметила при своих проверках. Программа получает их адреса через Global Offset Table — таблицу смещений функций, которая заполняется загрузчиком из данных в самом ELF. Я заменил эти данные так, чтобы они указывали на место, куда я дописал новые функции.</p>
+<p>Все это я включил в свой Python-скрипт, который, с одобрения мейнтейнера, добавил в пакет <code>widevine-aarch64</code>. Теперь достаточно установить <code>widevine-aarch64</code> из AUR, и с Widevine на Asahi Linux будет готов к работе!</p>
+<h3 id="osobennosti-netflix">Особенности Netflix</h3>
+<p>Spotify у меня заработал, но Netflix все равно отказывался что-либо показывать. Дело было в проверке User-Agent. В конце-концов, я поменял его на взятый из ChromeOS:</p>
+<pre class="z-code"><code><span class="z-text z-plain">Mozilla/5.0 (X11; CrOS aarch64 15236.80.0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/109.0.5414.125 Safari/537.36
+</span></code></pre>
+<p>Версия Widevine, которую мы получили, называется L3 — наименее защищенный уровень. Более высокие уровни защиты требуют аппаратной поддержки. На Apple Silicon есть нужные чипы, но библиотека не родная, и их поддержка там нет.</p>
+<p>Большинство сервисов не дают смотреть 4K-контент на таком уровне защиты — максимум 1080p. Но Netflix и тут отличился: по умолчанию он отдает таким клиентам 720p, а 1080p включает, только если попросить его особым образом на уровне самого протокола. Для этого есть <a href="https://chrome.google.com/webstore/detail/netflix-1080p/cankofcoohmbhfpcemhmaaeennfbnmgp?hl=en">браузерные расширения</a>. Не уверен, зачем они так сделали; возможно, у кого-то из клиентов были проблемы из-за отсутствия поддержки L3-версией "железного" декодирования видео?</p>
+<h2 id="zakliuchenie">Заключение</h2>
+<p>Меня забавляет, что все это я делал не чтобы обойти DRM, а наоборот, чтобы оно наконец заработало нормально. Это неправильно! Из того, что я смог легально посмотреть контент, за который я заплатил, в нормальном мире не должно получаться детективной статьи!</p>
+<p>Дорогой Гугл, пожалуйста, добавь в матрицу сборки хотя бы Ubuntu на aarch64. Я знаю, тебе не сложно.</p>
+
+    </main>
+
+    <footer>
+      <nav>
+        <ul class="horizontal small">
+          <li><a rel="me" href="https://github.com/iliazeus">github</a></li>
+          <li><a rel="me" href="https://habr.com/users/iliazeus">habr</a></li>
+          <li><a rel="me" href="https://lor.sh/@iliazeus">mastodon</a></li>
+          <li><a rel="me" href="mailto:iliazeus@proton.me">mailto</a></li>
+          <li>made with <a href="https://www.getzola.org/">Zola</a></li>
+        </ul>
+      </nav>
+    </footer>
+  </body>
+</html>

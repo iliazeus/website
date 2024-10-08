@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="ru">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="description" content="Как (и зачем) я писал README в Jupyter-ноутбуке для Node.js-приложения. Или как залить python-пакет в npm. iliazeus" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <link rel="alternate" type="application/atom+xml" href="https://iliazeus.lol/atom.xml">
+
+    <link
+      rel="preload" as="style"
+      href="https://code.cdn.mozilla.net/fonts/fira.css"
+      onload="this.onload=null;this.rel='stylesheet'"
+    />
+
+    <style>.if-not-js { display: none !important }</style>
+    <noscript><style>
+      .if-js { display: none !important }
+      .if-not-js { display: unset !important }
+    </style></noscript>
+
+    <script src="/theme.js"></script>
+    <link rel="stylesheet" href="/style.css" />
+
+    <title>Как (и зачем) я писал README в Jupyter-ноутбуке для Node.js-приложения | iliazeus</title>
+  </head>
+
+  <body>
+    <a href="#" class="local if-js theme-toggle" style="cursor: pointer; position: absolute; right: 8px; top: 8px">toggle dark theme</a>
+
+    <header>
+      <hgroup>
+        <h1><a href="/" title="go to main page">iliazeus</a></h1>
+        <nav>
+          <ul class="horizontal small">
+            <li><a rel="me" href="https://github.com/iliazeus">github</a></li>
+            <li><a rel="me" href="https://habr.com/users/iliazeus">habr</a></li>
+            <li><a rel="me" href="https://lor.sh/@iliazeus">mastodon</a></li>
+            <li><a rel="me" href="mailto:iliazeus@proton.me">mailto</a></li>
+          </ul>
+        </nav>
+        <p>илья, иль не я</p>
+      </hgroup>
+    </header>
+
+    <main>
+      <hgroup>
+        <h2>Как (и зачем) я писал README в Jupyter-ноутбуке для Node.js-приложения</h2>
+        <ul class="horizontal">
+          <li>2022-12-23</li>
+          <li>ru</li>
+          
+          <li><a target="_blank" href="https:&#x2F;&#x2F;creativecommons.org&#x2F;licenses&#x2F;by-sa&#x2F;4.0&#x2F;"  rel="license" >CC BY-SA 4.0</a></li>
+          
+          <li><a target="_blank" href="https:&#x2F;&#x2F;habr.com&#x2F;ru&#x2F;articles&#x2F;707380&#x2F;"  rel="alternate" >habr</a></li>
+          
+        </ul>
+      </hgroup>
+
+      <p>На одном из прошлых мест работы я поддерживал консольную Node.js-утилиту, которая публиковалась в NPM. Утилита использовала <a href="https://www.npmjs.com/package/commander"><code>commander</code></a>, содержала довольно большое количество подкоманд, и все они требовали описания в README-файле, которое нужно было не забывать обновлять при каждом изменении. Несколько лет спустя я нашел решение, используя не слишком привычные для экосистемы Node.js технологии.</p>
+<p><img src="https://iliazeus.lol/articles/node-jupyter-readme-ru/cover.png" alt="README.ipynb" /></p>
+<p>В этой статье: много моей любви к <a href="https://jupyter.org/">Jupyter</a>-подобным ноутбукам, инструкция про то, как затащить Python-пакет в NPM и чуть-чуть анализа трекерной музыки.</p>
+<span id="continue-reading"></span><h3 id="davaite-snachala-pro-muzyku"><a class="anchor" href="#davaite-snachala-pro-muzyku" title="link to section">#</a>Давайте сначала про музыку</h3>
+<p>Одним из моих полузаконченных пет-проектов была небольшая Python-утилита <a href="https://github.com/iliazeus/modgraph"><code>modgraph</code></a>, которая позволяла посмотреть, насколько разные <a href="https://ru.wikipedia.org/wiki/%D0%A2%D1%80%D0%B5%D0%BA%D0%B5%D1%80%D0%BD%D0%B0%D1%8F_%D0%BC%D1%83%D0%B7%D1%8B%D0%BA%D0%B0">трекерные</a> композиции пересекаются по используемым семплам. Ее можно было использовать и через CLI — она выдавала результаты в CSV для дальнейшего анализа в каком-нибудь Excel — так и как библиотеку, анализируя результаты, например, в pandas.</p>
+<figure class="border">
+<img src="sample-distribution.png" />
+<figcaption>Самые популярные семплы в какой-то рандомной подборке модулей одного автора</figcaption>
+</figure>
+<p>Пример такого использования я захотел описать в репозитории. Самым простым способом было дать ссылку на Jupyter-ноутбук, лежащий в репозитории — GitHub <a href="https://github.com/iliazeus/modgraph/blob/master/README.ipynb">умеет их отображать</a>. Но мне хотелось видеть эти примеры на первой странице репозитория и на странице пакета в PyPI, а для этого они должны были быть описаны в <code>README.md</code>.</p>
+<h3 id="nbconvert"><a class="anchor" href="#nbconvert" title="link to section">#</a><code>nbconvert</code></h3>
+<p><a href="https://nbconvert.readthedocs.io/en/latest/"><code>nbconvert</code></a> — это утилита, которая может отрендерить ноутбук в HTML, Markdown и другие форматы. Ее можно установить из того же <a href="https://pypi.org/project/nbconvert/">PyPI</a> (в моем случае — как dev-зависимость для <a href="https://pdm.fming.dev/latest/">PDM</a>), и волшебное заклинание <code>nbconvert README.ipynb --to markdown</code> принесет мне ровно то, что я хотел. Ну, почти то, что хотел — некоторые вещи пришлось поправить руками, и встраивать base64-картинки в сам маркдаун <code>nbconvert</code> не умеет.</p>
+<p>Тем не менее, мои эстетические потребности это удовлетворило.</p>
+<figure class="border">
+<img src="rendered-readme-notebook.png" />
+<figcaption>И код, и результаты — сразу в README</figcaption>
+</figure>
+<p>Более того, я мог использовать команды шелла в этом же ноутбуке, чтобы описать то, как пользоваться CLI-утилитой. Теперь не было необходимости вручную править это описание при каждом изменении интерфейса — достаточно было перезапустить ноутбук, сохранить его, и перегенерировать README.</p>
+<figure class="border">
+<img src="modgraph-cli.png" />
+<figcaption>modgraph CLI</figcaption>
+</figure>
+<p>И вот на этой мысли я увидел вьетнамские флешбеки из начала статьи.</p>
+<h3 id="kak-sdelat-tak-zhe-no-dlia-node-js"><a class="anchor" href="#kak-sdelat-tak-zhe-no-dlia-node-js" title="link to section">#</a>Как сделать так же, но для Node.js?</h3>
+<p>Как документировать таким же образом консольную Node.js-утилиту? На первый взгляд, отличий не должно быть: просто пишем <code>README.ipynb</code> с шелл-командами, затем запускаем <code>nbconvert</code> и получаем на выходе маркдаун. Однако есть один важный затык. Правильно организованные Node.js-проекты обычно предполагают, что после исполнения команды <code>npm install</code> проект готов к разработке. В частности, все необходимые утилиты — компиляторы, кодогенераторы, линтеры — были объявлены как <code>devDependencies</code> в <code>package.json</code> и установлены <code>npm install</code>.</p>
+<p>Но <code>nbconvert</code> так не установить. Более того — не всегда получится дать достаточно вменяемую инструкцию для его установки. Делать <code>pip install nbconvert</code>? <code>conda install nbconvert</code>? <code>apt install nbconvert</code>? Нужен ли <code>venv</code>? Или <code>virtualenv</code>? Может быть не очень просто понять, как правильно пользоваться экосистемой пакетов Python, если привык к инструментам для Node.js — по крайней мере, у меня сходу не вышло.</p>
+<figure>
+<img src="relevant-xkcd.png" />
+<figcaption>https://xkcd.com/1987/</figcaption>
+</figure>
+<p>Поэтому я решил скрещивать ежа с ужом, а жабу с гадюкой. А именно:</p>
+<h3 id="opublikovat-python-utilitu-v-npm"><a class="anchor" href="#opublikovat-python-utilitu-v-npm" title="link to section">#</a>Опубликовать Python-утилиту в NPM</h3>
+<p>Инструкция из трех простых шагов.</p>
+<h4 id="1-upakovat-paket-so-vsemi-zavisimostiami-v-odin-fail"><a class="anchor" href="#1-upakovat-paket-so-vsemi-zavisimostiami-v-odin-fail" title="link to section">#</a>1. Упаковать пакет со всеми зависимостями в один файл</h4>
+<p>Утилита <code>pex</code> позволяет упаковать Python-пакет и все его зависимости в один файл, который потом можно запустить просто как <code>python foobar.pex</code>. Написав несложный скрипт, можно установить <code>pex</code> в локальный <code>venv</code> и собрать с его помощью <code>nbconvert.pex</code>.</p>
+<h4 id="2-sobrat-paket-khimeru"><a class="anchor" href="#2-sobrat-paket-khimeru" title="link to section">#</a>2. Собрать пакет-химеру</h4>
+<p>Таким именем я обозвал пакеты, которые содержат не JavaScript-библиотеку, а исполняемый файл или скрипт на другом языке. Эта идея не нова, общий паттерн такой: <code>post-install</code> скрипт скачивает бинарь, а отдельная обертка <code>run.js</code>, указанная в <code>package.json</code> как <code>"bin": "run.js"</code>, запускает его. Для такого паттерна даже есть несколько готовых библиотек вроде <a href="https://www.npmjs.com/package/binary-install">binary-install</a>.</p>
+<p>У нас ситуация чуть проще — утилита уже собрана, скачивать ее не надо. Но чуть сложнее — запустить ее просто как <code>nbconvert.pex</code> можно только на nix-системах — Windows не поймет shebang. Но базовый <code>run.js</code> несложно написать и самому. Разберем построчно:</p>
+<pre data-lang="js" class="language-js z-code"><code class="language-js" data-lang="js"><span class="z-source z-ts"><span class="z-comment z-line z-shebang z-ts"><span class="z-punctuation z-definition z-comment z-ts">#!</span>/usr/bin/env node</span>
+</span><span class="z-source z-ts">
+</span><span class="z-source z-ts"><span class="z-meta z-var z-expr z-ts"><span class="z-storage z-type z-ts">const</span> <span class="z-meta z-object-binding-pattern-variable z-ts"><span class="z-punctuation z-definition z-binding-pattern z-object z-ts">{</span> <span class="z-meta z-definition z-variable z-ts"><span class="z-variable z-other z-constant z-ts">join</span></span> <span class="z-punctuation z-definition z-binding-pattern z-object z-ts">}</span> </span><span class="z-keyword z-operator z-assignment z-ts">=</span> <span class="z-meta z-function-call z-ts"><span class="z-support z-function z-ts">require</span></span><span class="z-meta z-brace z-round z-ts">(</span><span class="z-string z-quoted z-double z-ts"><span class="z-punctuation z-definition z-string z-begin z-ts">&quot;</span>path<span class="z-punctuation z-definition z-string z-end z-ts">&quot;</span></span><span class="z-meta z-brace z-round z-ts">)</span></span><span class="z-punctuation z-terminator z-statement z-ts">;</span>
+</span><span class="z-source z-ts"><span class="z-meta z-var z-expr z-ts"><span class="z-storage z-type z-ts">const</span> <span class="z-meta z-object-binding-pattern-variable z-ts"><span class="z-punctuation z-definition z-binding-pattern z-object z-ts">{</span> <span class="z-meta z-definition z-variable z-ts"><span class="z-variable z-other z-constant z-ts">spawnSync</span></span> <span class="z-punctuation z-definition z-binding-pattern z-object z-ts">}</span> </span><span class="z-keyword z-operator z-assignment z-ts">=</span> <span class="z-meta z-function-call z-ts"><span class="z-support z-function z-ts">require</span></span><span class="z-meta z-brace z-round z-ts">(</span><span class="z-string z-quoted z-double z-ts"><span class="z-punctuation z-definition z-string z-begin z-ts">&quot;</span>child_process<span class="z-punctuation z-definition z-string z-end z-ts">&quot;</span></span><span class="z-meta z-brace z-round z-ts">)</span></span><span class="z-punctuation z-terminator z-statement z-ts">;</span>
+</span><span class="z-source z-ts">
+</span><span class="z-source z-ts"><span class="z-meta z-var z-expr z-ts"><span class="z-storage z-type z-ts">const</span> <span class="z-meta z-var-single-variable z-expr z-ts"><span class="z-meta z-definition z-variable z-ts"><span class="z-variable z-other z-constant z-ts">result</span></span> </span><span class="z-keyword z-operator z-assignment z-ts">=</span> <span class="z-meta z-function-call z-ts"><span class="z-entity z-name z-function z-ts">spawnSync</span></span><span class="z-meta z-brace z-round z-ts">(</span>
+</span></span><span class="z-source z-ts"><span class="z-meta z-var z-expr z-ts"><span class="z-punctuation z-whitespace z-comment z-leading z-ts">  </span><span class="z-comment z-line z-double-slash z-ts"><span class="z-punctuation z-definition z-comment z-ts">//</span></span><span class="z-comment z-line z-double-slash z-ts"> вызываем интерпретатор</span>
+</span></span><span class="z-source z-ts"><span class="z-meta z-var z-expr z-ts">  <span class="z-string z-quoted z-double z-ts"><span class="z-punctuation z-definition z-string z-begin z-ts">&quot;</span>python<span class="z-punctuation z-definition z-string z-end z-ts">&quot;</span></span><span class="z-punctuation z-separator z-comma z-ts">,</span>
+</span></span><span class="z-source z-ts"><span class="z-meta z-var z-expr z-ts"><span class="z-meta z-array z-literal z-ts">  <span class="z-meta z-brace z-square z-ts">[</span>
+</span></span></span><span class="z-source z-ts"><span class="z-meta z-var z-expr z-ts"><span class="z-meta z-array z-literal z-ts"><span class="z-punctuation z-whitespace z-comment z-leading z-ts">    </span><span class="z-comment z-line z-double-slash z-ts"><span class="z-punctuation z-definition z-comment z-ts">//</span></span><span class="z-comment z-line z-double-slash z-ts"> передаем ему наш .pex, не забывая,</span>
+</span></span></span><span class="z-source z-ts"><span class="z-meta z-var z-expr z-ts"><span class="z-meta z-array z-literal z-ts"><span class="z-punctuation z-whitespace z-comment z-leading z-ts">    </span><span class="z-comment z-line z-double-slash z-ts"><span class="z-punctuation z-definition z-comment z-ts">//</span></span><span class="z-comment z-line z-double-slash z-ts"> что рабочий каталог может быть другим</span>
+</span></span></span><span class="z-source z-ts"><span class="z-meta z-var z-expr z-ts"><span class="z-meta z-array z-literal z-ts">    <span class="z-meta z-function-call z-ts"><span class="z-entity z-name z-function z-ts">join</span></span><span class="z-meta z-brace z-round z-ts">(</span><span class="z-support z-variable z-object z-node z-ts">__dirname</span><span class="z-punctuation z-separator z-comma z-ts">,</span> <span class="z-string z-quoted z-double z-ts"><span class="z-punctuation z-definition z-string z-begin z-ts">&quot;</span>nbconvert.pex<span class="z-punctuation z-definition z-string z-end z-ts">&quot;</span></span><span class="z-meta z-brace z-round z-ts">)</span><span class="z-punctuation z-separator z-comma z-ts">,</span>
+</span></span></span><span class="z-source z-ts"><span class="z-meta z-var z-expr z-ts"><span class="z-meta z-array z-literal z-ts"><span class="z-punctuation z-whitespace z-comment z-leading z-ts">    </span><span class="z-comment z-line z-double-slash z-ts"><span class="z-punctuation z-definition z-comment z-ts">//</span></span><span class="z-comment z-line z-double-slash z-ts"> передаем далее все CLI-аргументы, кроме первых двух</span>
+</span></span></span><span class="z-source z-ts"><span class="z-meta z-var z-expr z-ts"><span class="z-meta z-array z-literal z-ts"><span class="z-punctuation z-whitespace z-comment z-leading z-ts">    </span><span class="z-comment z-line z-double-slash z-ts"><span class="z-punctuation z-definition z-comment z-ts">//</span></span><span class="z-comment z-line z-double-slash z-ts"> первые два - это путь к бинарнику node и путь к run.js</span>
+</span></span></span><span class="z-source z-ts"><span class="z-meta z-var z-expr z-ts"><span class="z-meta z-array z-literal z-ts">    <span class="z-keyword z-operator z-spread z-ts">...</span><span class="z-meta z-function-call z-ts"><span class="z-support z-variable z-object z-process z-ts">process</span><span class="z-punctuation z-accessor z-ts">.</span><span class="z-support z-variable z-property z-process z-ts">argv</span><span class="z-punctuation z-accessor z-ts">.</span><span class="z-support z-function z-ts">slice</span></span><span class="z-meta z-brace z-round z-ts">(</span><span class="z-constant z-numeric z-decimal z-ts">2</span><span class="z-meta z-brace z-round z-ts">)</span><span class="z-punctuation z-separator z-comma z-ts">,</span>
+</span></span></span><span class="z-source z-ts"><span class="z-meta z-var z-expr z-ts"><span class="z-meta z-array z-literal z-ts">  <span class="z-meta z-brace z-square z-ts">]</span></span><span class="z-punctuation z-separator z-comma z-ts">,</span>
+</span></span><span class="z-source z-ts"><span class="z-meta z-var z-expr z-ts">  <span class="z-meta z-objectliteral z-ts"><span class="z-punctuation z-definition z-block z-ts">{</span>
+</span></span></span><span class="z-source z-ts"><span class="z-meta z-var z-expr z-ts"><span class="z-meta z-objectliteral z-ts"><span class="z-punctuation z-whitespace z-comment z-leading z-ts">    </span><span class="z-comment z-line z-double-slash z-ts"><span class="z-punctuation z-definition z-comment z-ts">//</span></span><span class="z-comment z-line z-double-slash z-ts"> запускаем через шелл, чтобы он сам нашел python в PATH</span>
+</span></span></span><span class="z-source z-ts"><span class="z-meta z-var z-expr z-ts"><span class="z-meta z-objectliteral z-ts">    <span class="z-meta z-object z-member z-ts"><span class="z-meta z-object-literal z-key z-ts">shell</span></span><span class="z-meta z-object z-member z-ts"><span class="z-meta z-object-literal z-key z-ts"><span class="z-punctuation z-separator z-key-value z-ts">:</span></span> <span class="z-constant z-language z-boolean z-true z-ts">true</span></span><span class="z-punctuation z-separator z-comma z-ts">,</span>
+</span></span></span><span class="z-source z-ts"><span class="z-meta z-var z-expr z-ts"><span class="z-meta z-objectliteral z-ts"><span class="z-punctuation z-whitespace z-comment z-leading z-ts">    </span><span class="z-comment z-line z-double-slash z-ts"><span class="z-punctuation z-definition z-comment z-ts">//</span></span><span class="z-comment z-line z-double-slash z-ts"> перенаправляем stdin, stdout, stderr</span>
+</span></span></span><span class="z-source z-ts"><span class="z-meta z-var z-expr z-ts"><span class="z-meta z-objectliteral z-ts">    <span class="z-meta z-object z-member z-ts"><span class="z-meta z-object-literal z-key z-ts">stdio</span></span><span class="z-meta z-object z-member z-ts"><span class="z-meta z-object-literal z-key z-ts"><span class="z-punctuation z-separator z-key-value z-ts">:</span></span> <span class="z-string z-quoted z-double z-ts"><span class="z-punctuation z-definition z-string z-begin z-ts">&quot;</span>inherit<span class="z-punctuation z-definition z-string z-end z-ts">&quot;</span></span></span><span class="z-punctuation z-separator z-comma z-ts">,</span>
+</span></span></span><span class="z-source z-ts"><span class="z-meta z-var z-expr z-ts"><span class="z-meta z-objectliteral z-ts">  <span class="z-punctuation z-definition z-block z-ts">}</span></span>
+</span></span><span class="z-source z-ts"><span class="z-meta z-var z-expr z-ts"><span class="z-meta z-brace z-round z-ts">)</span></span><span class="z-punctuation z-terminator z-statement z-ts">;</span>
+</span><span class="z-source z-ts">
+</span><span class="z-source z-ts"><span class="z-comment z-line z-double-slash z-ts"><span class="z-punctuation z-definition z-comment z-ts">//</span></span><span class="z-comment z-line z-double-slash z-ts"> после завершения процесса выходим сами с тем же кодом</span>
+</span><span class="z-source z-ts"><span class="z-support z-variable z-object z-process z-ts">process</span><span class="z-punctuation z-accessor z-ts">.</span><span class="z-support z-variable z-property z-process z-ts">exitCode</span> <span class="z-keyword z-operator z-assignment z-ts">=</span> <span class="z-variable z-other z-object z-ts">result</span><span class="z-punctuation z-accessor z-ts">.</span><span class="z-support z-variable z-property z-dom z-ts">status</span><span class="z-punctuation z-terminator z-statement z-ts">;</span>
+</span></code></pre>
+<h4 id="3-opublikovat-v-npm-s-razumnym-nomerom-versii"><a class="anchor" href="#3-opublikovat-v-npm-s-razumnym-nomerom-versii" title="link to section">#</a>3. Опубликовать в NPM с разумным номером версии</h4>
+<p>Хотелось бы, чтобы у пакета была та же версия, что и у <code>nbcovert</code>, который он оборачивает. Но, с другой стороны, если меняются сами скрипты-обертки, разумно тоже увеличивать версию. Как компромисс, можно использовать версию <code>X.Y.Z</code>, где <code>X.Y</code> — это major и minor версии <code>nbconvert</code>, а <code>Z</code> — номер ревизии, который меняю я сам.</p>
+<p>На первый взгляд, кажется более подходящей схема <code>X.Y.Z-R</code>, где <code>X.Y.Z</code> — полная версия nbconvert, а <code>R</code> — номер ревизии. Однако, в NPM принята semver, в которой <code>R</code> будет считаться пре-релизным тегом. Это приведет к тому, что версия <code>1.2.3-4</code> будет считаться более старой, чем версия <code>1.2.3</code>, и при команде <code>npm install nbconvert@^1.2.3</code> мы получим что-то более старое, чем хотели.</p>
+<h3 id="rezul-taty"><a class="anchor" href="#rezul-taty" title="link to section">#</a>Результаты</h3>
+<ul>
+<li>PyPI-пакет <code>modgraph</code> (<a href="https://pypi.org/project/modgraph/">PyPI</a>, <a href="https://github.com/iliazeus/modgraph">GitHub</a>) с эстетически приятной README</li>
+<li>NPM-пакет <code>nbconvert</code> (<a href="https://www.npmjs.com/package/nbconvert">NPM</a>, <a href="https://github.com/iliazeus/node-nbconvert">GitHub</a>) для эстетически приятных README в Node.js</li>
+<li>чуть лучше понимание <strike>эстетически неприятных</strike> систем пакетов в NPM и PyPI</li>
+<li>эстетически приятное удовольствие от ненормального программирования</li>
+</ul>
+
+    </main>
+
+    <footer>
+      <nav>
+        <ul class="horizontal small">
+          <li><a rel="me" href="https://github.com/iliazeus">github</a></li>
+          <li><a rel="me" href="https://habr.com/users/iliazeus">habr</a></li>
+          <li><a rel="me" href="https://lor.sh/@iliazeus">mastodon</a></li>
+          <li><a rel="me" href="mailto:iliazeus@proton.me">mailto</a></li>
+          <li>made with <a href="https://www.getzola.org/">Zola</a></li>
+        </ul>
+      </nav>
+    </footer>
+  </body>
+</html>

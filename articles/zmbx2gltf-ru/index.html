@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="ru">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="description" content="Как я разбирал нестандартный формат 3D-моделей, чтобы показывать Лего у себя на сайте. История zmbx2gltf. iliazeus" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <link rel="alternate" type="application/atom+xml" href="https://iliazeus.lol/atom.xml">
+
+    <link
+      rel="preload" as="style"
+      href="https://code.cdn.mozilla.net/fonts/fira.css"
+      onload="this.onload=null;this.rel='stylesheet'"
+    />
+
+    <style>.if-not-js { display: none !important }</style>
+    <noscript><style>
+      .if-js { display: none !important }
+      .if-not-js { display: unset !important }
+    </style></noscript>
+
+    <script src="/theme.js"></script>
+    <link rel="stylesheet" href="/style.css" />
+
+    <title>Как я разбирал нестандартный формат 3D-моделей, чтобы показывать Лего у себя на сайте | iliazeus</title>
+  </head>
+
+  <body>
+    <a href="#" class="local if-js theme-toggle" style="cursor: pointer; position: absolute; right: 8px; top: 8px">toggle dark theme</a>
+
+    <header>
+      <hgroup>
+        <h1><a href="/" title="go to main page">iliazeus</a></h1>
+        <nav>
+          <ul class="horizontal small">
+            <li><a rel="me" href="https://github.com/iliazeus">github</a></li>
+            <li><a rel="me" href="https://habr.com/users/iliazeus">habr</a></li>
+            <li><a rel="me" href="https://lor.sh/@iliazeus">mastodon</a></li>
+            <li><a rel="me" href="mailto:iliazeus@proton.me">mailto</a></li>
+          </ul>
+        </nav>
+        <p>илья, иль не я</p>
+      </hgroup>
+    </header>
+
+    <main>
+      <hgroup>
+        <h2>Как я разбирал нестандартный формат 3D-моделей, чтобы показывать Лего у себя на сайте</h2>
+        <ul class="horizontal">
+          <li>2023-09-08</li>
+          <li>ru</li>
+          
+          <li><a target="_blank" href="https:&#x2F;&#x2F;creativecommons.org&#x2F;licenses&#x2F;by-sa&#x2F;4.0&#x2F;"  rel="license" >CC BY-SA 4.0</a></li>
+          
+          <li><a target="_blank" href="https:&#x2F;&#x2F;habr.com&#x2F;ru&#x2F;articles&#x2F;759300&#x2F;"  rel="alternate" >habr</a></li>
+          
+        </ul>
+      </hgroup>
+
+      <p>Несколько лет назад мне на день рождения подарили то, о чем я мечтал с детства — большую коробку с кучей деталей Лего, из которой можно было собрать что угодно. Мой внутренний ребенок очень быстро начал собирать из них машинки, а мой внутренний взрослый задумался — можно ли их как-то увековечить в цифровом виде, чтобы потом собрать снова, и чтобы показывать всем друзьям.</p>
+<p>Я перепробовал несколько редакторов 3D-моделей Лего (моим главным условием была работа на Linux, либо в вебе), и остановился на онлайн-редакторе <a href="https://www.mecabricks.com/">Mecabricks</a>. Но, уже перенеся туда несколько из моих творений, понял, что с задачей "показывать всем друзьям" все будет сложнее: у Mecabricks довольно скудные возможности экспорта, а его собственный формат с расширением <code>.zmbx</code> понимает только он и его плагин для Blender.</p>
+<p>Поэтому я решил посмотреть, как этот формат устроен, и написать свой конвертер во что-то более общепринятое. В качестве целевого формата я выбрал glTF, а инструмент незатейливо назвал <a href="https://github.com/iliazeus/zmbx2glTF"><code>zmbx2gltf</code></a>. В этой статье я расскажу, как постепенно разбирал этот непонятный <code>.zmbx</code>, про устройство и преимущества glTF как формата передачи 3D-ассетов между разными инструментами, и про то, какие проблемы я решал, конвертируя одно в другое.</p>
+<p>Исходники <code>zmbx2glTF</code> есть <a href="https://github.com/iliazeus/zmbx2glTF">на GitHub</a>, а 3D-модельки можно посмотреть <a href="/legos/">у меня на сайте</a>.</p>
+<figure class="border">
+<img src="cover.png" alt="" />
+<figcaption>примеры моделей Лего, преобразованных моей утилитой</figcaption>
+</figure>
+<h2 id="chast-1-razbiraem-zmbx"><a class="anchor" href="#chast-1-razbiraem-zmbx" title="link to section">#</a>Часть 1: разбираем <code>.zmbx</code></h2>
+<p>Описание всего, что мне удалось выяснить про этот формат, можно найти <a href="https://github.com/iliazeus/zmbx2glTF/blob/6729df3e/src/mbx/types.ts">в репозитории</a> <code>zmbx2glTF</code>, в виде описания типов TypeScript. Здесь немного расскажу про то, как мне удалось все это выяснить.</p>
+<h3 id="obshchaia-struktura"><a class="anchor" href="#obshchaia-struktura" title="link to section">#</a>Общая структура</h3>
+<p>Если мне в Unix-подобной системе попадается файл непонятного внутреннего устройства, то первое, что я делаю — скармливаю его утилите <a href="https://linux.die.net/man/1/file"><code>file</code></a>. Она умеет по различным "волшебным числам" и прочим косвенным признакам определять довольно много форматов файлов. Для моего <code>.zmbx</code> она вывела следующее:</p>
+<pre class="z-code"><code><span class="z-text z-plain">$ file cab.zmbx
+</span><span class="z-text z-plain">cab.zmbx: Zip archive data, at least v1.0 to extract, compression method=deflate
+</span></code></pre>
+<p>Файл <code>.zmbx</code> оказался ZIP-архивом. Вероятно, буква <code>z</code> в расширении указывала именно на это, а <code>mbx</code> — сокращение от Mecabricks.</p>
+<p>Заглянем внутрь этого архива:</p>
+<pre class="z-code"><code><span class="z-text z-plain">$ unzip cab.zmbx
+</span><span class="z-text z-plain">Archive:  cab.zmbx
+</span><span class="z-text z-plain">  inflating: scene.mbx
+</span></code></pre>
+<p>Предположение подтвердилось: несжатый файл внутри имеет как раз расширение <code>.mbx</code>. Перепробовав несколько файлов, я выяснил, что в архиве он, вероятнее всего, всегда один, и всегда имеет имя <code>scene.mbx</code>.</p>
+<p>А что внутри него самого?</p>
+<pre class="z-code"><code><span class="z-text z-plain">$ file scene.mbx
+</span><span class="z-text z-plain">scene.mbx: JSON text data
+</span></code></pre>
+<p>Кажется, нам повезло второй раз! Формат <code>.mbx</code> оказался основан на JSON, а это значит, что препарировать его будет чуть легче, чем какой-то бинарный файл.</p>
+<p>Для разбора незнакомых JSON (да и знакомых тоже) я использую Visual Studio Code. В частности, там есть полезная фича "свернуть все блоки кода, но развернуть первый уровень". Для этого нужно с зажатым <code>Shift</code> нажать на стрелочку слева, которой блоки обычно сворачиваются. Перед этим нужно сказать VS Code, что <code>.mbx</code> — это на самом деле JSON (<code>F1 - Change Language Mode - JSON</code>), а также отформатировать файл, чтобы заработала подсветка кода.</p>
+<figure class="border">
+<img src="screenshot-1.png" alt="" />
+<figcaption>Вот так выглядит файл после этих манипуляций</figcaption>
+</figure>
+<p>В поле <code>metadata</code> — объект с базовой информацией о файле.</p>
+<pre data-lang="json" class="language-json z-code"><code class="language-json" data-lang="json"><span class="z-source z-json"><span class="z-meta z-mapping z-json"><span class="z-punctuation z-section z-mapping z-begin z-json">{</span>
+</span></span><span class="z-source z-json"><span class="z-meta z-mapping z-json">  <span class="z-comment z-line z-double-slash z-js"><span class="z-punctuation z-definition z-comment z-json">//</span> все, о чем я говорю, будет применимо только для этой версии:
+</span></span></span><span class="z-source z-json"><span class="z-meta z-mapping z-json">  </span><span class="z-meta z-mapping z-key z-json"><span class="z-string z-quoted z-double z-json"><span class="z-punctuation z-definition z-string z-begin z-json">&quot;</span>version<span class="z-punctuation z-definition z-string z-end z-json">&quot;</span></span></span><span class="z-meta z-mapping z-json"><span class="z-punctuation z-separator z-mapping z-key-value z-json">:</span> </span><span class="z-meta z-mapping z-value z-json"><span class="z-meta z-sequence z-json"><span class="z-punctuation z-section z-sequence z-begin z-json">[</span><span class="z-constant z-numeric z-integer z-decimal z-json">2</span><span class="z-punctuation z-separator z-sequence z-json">,</span> <span class="z-constant z-numeric z-integer z-decimal z-json">0</span><span class="z-punctuation z-separator z-sequence z-json">,</span> <span class="z-constant z-numeric z-integer z-decimal z-json">0</span><span class="z-punctuation z-section z-sequence z-end z-json">]</span></span><span class="z-punctuation z-separator z-mapping z-pair z-json">,</span>
+</span></span><span class="z-source z-json"><span class="z-meta z-mapping z-value z-json">  </span><span class="z-meta z-mapping z-key z-json"><span class="z-string z-quoted z-double z-json"><span class="z-punctuation z-definition z-string z-begin z-json">&quot;</span>date<span class="z-punctuation z-definition z-string z-end z-json">&quot;</span></span></span><span class="z-meta z-mapping z-value z-json"><span class="z-punctuation z-separator z-mapping z-key-value z-json">:</span> </span><span class="z-meta z-mapping z-value z-json"><span class="z-string z-quoted z-double z-json"><span class="z-punctuation z-definition z-string z-begin z-json">&quot;</span>2023-01-11T09:43:49.552Z<span class="z-punctuation z-definition z-string z-end z-json">&quot;</span></span><span class="z-punctuation z-separator z-mapping z-pair z-json">,</span>
+</span></span><span class="z-source z-json"><span class="z-meta z-mapping z-value z-json">  </span><span class="z-meta z-mapping z-key z-json"><span class="z-string z-quoted z-double z-json"><span class="z-punctuation z-definition z-string z-begin z-json">&quot;</span>generator<span class="z-punctuation z-definition z-string z-end z-json">&quot;</span></span></span><span class="z-meta z-mapping z-value z-json"><span class="z-punctuation z-separator z-mapping z-key-value z-json">:</span> </span><span class="z-meta z-mapping z-value z-json"><span class="z-string z-quoted z-double z-json"><span class="z-punctuation z-definition z-string z-begin z-json">&quot;</span>mecabricks<span class="z-punctuation z-definition z-string z-end z-json">&quot;</span></span> <span class="z-comment z-line z-double-slash z-js"><span class="z-punctuation z-definition z-comment z-json">//</span> о других генераторах мне не известно
+</span></span></span><span class="z-source z-json"><span class="z-meta z-mapping z-value z-json"><span class="z-punctuation z-section z-mapping z-end z-json">}</span></span>
+</span></code></pre>
+<p>Из остальных полей верхнего уровня плюс-минус понятными выглядят только <code>geometries</code> и <code>textures</code>. Начнем с них.</p>
+<h3 id="tekstury"><a class="anchor" href="#tekstury" title="link to section">#</a>Текстуры</h3>
+<p>Объект <code>textures</code> содержит два поля — <code>1</code> и <code>2</code>. Я предположил, что это номера версий форматов этих полей. Во всех моих экспериментах они отличались только тем, что в версии <code>2</code> есть дополнительное разделение на <code>official</code>- и <code>custom</code>-текстуры.</p>
+<p>Внутри все оказалось достаточно просто: текстуры разделены на категории (<code>bump</code>/<code>normal</code>/<code>mask</code>/<code>color</code>/<code>data</code>), внутри каждой категории — словарь "имя файла → base64-данные". Файлы всегда имели расширение <code>.png</code>, а формат base64-данных можно проверить моим любимым способом:</p>
+<pre class="z-code"><code><span class="z-text z-plain">$ (base64 -d | file -) &lt;&lt;EOF
+</span><span class="z-text z-plain">iVBORw0KGgoAAAANSUhEUgAAAIAAAACACAYAAADDPm...
+</span><span class="z-text z-plain">EOF
+</span><span class="z-text z-plain">/dev/stdin: PNG image data, 128 x 128, 8-bit/color RGBA, non-interlaced
+</span></code></pre>
+<p>С <code>color</code>, <code>bump</code>, <code>normal</code> и <code>metalness</code> текстурами все более-менее понятно; разбор остальных я решил отложить на потом.</p>
+<h3 id="geometriia"><a class="anchor" href="#geometriia" title="link to section">#</a>Геометрия</h3>
+<p>Поле <code>geometries</code> также поделено на две версии, но между ними мне также не удалось найти значимых отличий. За исключением одного: в версии <code>1</code> также присутствует объект <code>metadata</code>:</p>
+<pre data-lang="json" class="language-json z-code"><code class="language-json" data-lang="json"><span class="z-source z-json"><span class="z-meta z-mapping z-json"><span class="z-punctuation z-section z-mapping z-begin z-json">{</span>
+</span></span><span class="z-source z-json"><span class="z-meta z-mapping z-json">  </span><span class="z-meta z-mapping z-key z-json"><span class="z-string z-quoted z-double z-json"><span class="z-punctuation z-definition z-string z-begin z-json">&quot;</span>version<span class="z-punctuation z-definition z-string z-end z-json">&quot;</span></span></span><span class="z-meta z-mapping z-json"><span class="z-punctuation z-separator z-mapping z-key-value z-json">:</span> </span><span class="z-meta z-mapping z-value z-json"><span class="z-constant z-numeric z-integer z-decimal z-json">3</span><span class="z-punctuation z-separator z-mapping z-pair z-json">,</span>
+</span></span><span class="z-source z-json"><span class="z-meta z-mapping z-value z-json">  </span><span class="z-meta z-mapping z-key z-json"><span class="z-string z-quoted z-double z-json"><span class="z-punctuation z-definition z-string z-begin z-json">&quot;</span>type<span class="z-punctuation z-definition z-string z-end z-json">&quot;</span></span></span><span class="z-meta z-mapping z-value z-json"><span class="z-punctuation z-separator z-mapping z-key-value z-json">:</span> </span><span class="z-meta z-mapping z-value z-json"><span class="z-string z-quoted z-double z-json"><span class="z-punctuation z-definition z-string z-begin z-json">&quot;</span>Geometry<span class="z-punctuation z-definition z-string z-end z-json">&quot;</span></span><span class="z-punctuation z-separator z-mapping z-pair z-json">,</span>
+</span></span><span class="z-source z-json"><span class="z-meta z-mapping z-value z-json">  </span><span class="z-meta z-mapping z-key z-json"><span class="z-string z-quoted z-double z-json"><span class="z-punctuation z-definition z-string z-begin z-json">&quot;</span>vertices<span class="z-punctuation z-definition z-string z-end z-json">&quot;</span></span></span><span class="z-meta z-mapping z-value z-json"><span class="z-punctuation z-separator z-mapping z-key-value z-json">:</span> </span><span class="z-meta z-mapping z-value z-json"><span class="z-constant z-numeric z-integer z-decimal z-json">704</span><span class="z-punctuation z-separator z-mapping z-pair z-json">,</span>
+</span></span><span class="z-source z-json"><span class="z-meta z-mapping z-value z-json">  </span><span class="z-meta z-mapping z-key z-json"><span class="z-string z-quoted z-double z-json"><span class="z-punctuation z-definition z-string z-begin z-json">&quot;</span>generator<span class="z-punctuation z-definition z-string z-end z-json">&quot;</span></span></span><span class="z-meta z-mapping z-value z-json"><span class="z-punctuation z-separator z-mapping z-key-value z-json">:</span> </span><span class="z-meta z-mapping z-value z-json"><span class="z-string z-quoted z-double z-json"><span class="z-punctuation z-definition z-string z-begin z-json">&quot;</span>io_three<span class="z-punctuation z-definition z-string z-end z-json">&quot;</span></span><span class="z-punctuation z-separator z-mapping z-pair z-json">,</span>
+</span></span><span class="z-source z-json"><span class="z-meta z-mapping z-value z-json">  </span><span class="z-meta z-mapping z-key z-json"><span class="z-string z-quoted z-double z-json"><span class="z-punctuation z-definition z-string z-begin z-json">&quot;</span>faces<span class="z-punctuation z-definition z-string z-end z-json">&quot;</span></span></span><span class="z-meta z-mapping z-value z-json"><span class="z-punctuation z-separator z-mapping z-key-value z-json">:</span> </span><span class="z-meta z-mapping z-value z-json"><span class="z-constant z-numeric z-integer z-decimal z-json">352</span><span class="z-punctuation z-separator z-mapping z-pair z-json">,</span>
+</span></span><span class="z-source z-json"><span class="z-meta z-mapping z-value z-json">  </span><span class="z-meta z-mapping z-key z-json"><span class="z-string z-quoted z-double z-json"><span class="z-punctuation z-definition z-string z-begin z-json">&quot;</span>normals<span class="z-punctuation z-definition z-string z-end z-json">&quot;</span></span></span><span class="z-meta z-mapping z-value z-json"><span class="z-punctuation z-separator z-mapping z-key-value z-json">:</span> </span><span class="z-meta z-mapping z-value z-json"><span class="z-constant z-numeric z-integer z-decimal z-json">162</span>
+</span></span><span class="z-source z-json"><span class="z-meta z-mapping z-value z-json"><span class="z-punctuation z-section z-mapping z-end z-json">}</span></span>
+</span></code></pre>
+<p>Поле <code>generator</code> дало большую подсказку: <a href="https://github.com/repsac/io_three"><code>io_three</code></a> — это инструмент для экспорта из Blender в формат, пригодный для <a href="https://threejs.org/"><code>three.js</code></a>. По коду этого инструмента можно понять формат хранения данных. Если коротко, массив <code>faces</code> хранит все грани в таком виде: сначала число, означающее <a href="https://github.com/iliazeus/zmbx2glTF/blob/6729df3e/src/mbx/types.ts#L122">флаги</a>: треугольная грань или четырехугольная, есть ли данные о нормалях, UV-координатах и материалах; затем индексы в другие массивы для задания вершин, нормалей и UV-координат.</p>
+<h3 id="detali-i-konfiguratsii"><a class="anchor" href="#detali-i-konfiguratsii" title="link to section">#</a>Детали и конфигурации</h3>
+<p><em>Конфигурация</em> (<code>configuration</code>) в терминах этого формата — модель конкретной детали, вместе с применимыми к ней текстурами, а также с дополнительными украшательствами, вроде креплений и логотипов Lego. Так сделано, чтобы можно было определять геометрию для этих частей только один раз — в поле файла <code>details</code> в корне файла — и использовать во всех деталях.</p>
+<p>Версий формата конфигураций тоже две, но из значимых для меня различий был только нейминг: конфигурации версии 1 названы в формате <code>&lt;id&gt;.json</code>, версии 2 — просто <code>&lt;id&gt;</code>.</p>
+<p><em>Деталь</em> (<code>part</code>) в этом формате — уже конкретный инстанс детали, заданный конфигурацией, материалом и матрицей аффинной трансформации (row-major). Окончательная модель составлена из этого набора деталей.</p>
+<h3 id="materialy"><a class="anchor" href="#materialy" title="link to section">#</a>Материалы</h3>
+<p>Материалы оказались единственными данными, которые не были указаны непосредственно в файле. Вместо них там были только их числовые id. Я отправился гуглить, нашел на просторах интернета куда больше одного списка цветов деталей Лего — конечно же, у всех были разные id. Путем перебора, нашел нужные данные в репозитории <a href="https://github.com/pnichols04/lego_colors">pnichols04/lego_colors</a> на GitHub. Примерно те же данные, только представленные немного по-другому, теперь хранятся и в <a href="https://github.com/iliazeus/zmbx2glTF/blob/6729df3e/src/convert/data/colors.ts">моем репозитории</a>.</p>
+<h2 id="chast-2-vybiraem-kuda-konvertirovat"><a class="anchor" href="#chast-2-vybiraem-kuda-konvertirovat" title="link to section">#</a>Часть 2: выбираем, куда конвертировать</h2>
+<p>В мире уже существует очень много форматов 3D-моделей. Какой именно мне нужен, мне не было очевидно сразу — возможно, потому что я довольно далек от сферы 3D-графики. Но я наметил к нему несколько основных требований:</p>
+<ul>
+<li>
+<p>Быть достаточно широко поддерживаемым.</p>
+<p>Моими главными целями все еще были делиться моделями и показывать их на моем сайте. Поэтому нужно было что-то, для чего уже были браузерные просмотрщики, и что можно было бы легко импортировать в другой софт.</p>
+</li>
+<li>
+<p>Иметь спецификацию в открытом доступе.</p>
+<p>Тут все просто: мне не очень хотелось реверс-инжинирить еще один формат.</p>
+</li>
+<li>
+<p>Быть текстовым, либо иметь текстовое представление.</p>
+<p>Текстовые форматы намного проще отлаживать. Как мы уже убедились в части 1, достаточно любой IDE, чтобы иметь возможность залезть к ним внутрь и посмотреть, что именно преобразовалось не так.</p>
+</li>
+<li>
+<p>Поддерживать инстансинг геометрии.</p>
+<p>В исходном <code>.mbx</code> вся геометрия определяется отдельно от использования. Для простоты преобразования, мне хотелось, чтобы в целевом формате было так же.</p>
+</li>
+<li>
+<p>Поддерживать текстуры (specular, normal, bump) как часть основного файла.</p>
+<p>Это не слишком критичное требование — большинство деталей все-таки однотонные — но с ними получится все-таки красивее.</p>
+</li>
+</ul>
+<p>Пройдясь <a href="https://en.wikipedia.org/wiki/List_of_file_formats#3D_graphics">по списку форматов</a> на Википедии, я обнаружил подходящий мне формат: <a href="https://en.wikipedia.org/wiki/glTF">glTF</a>. Он подходил под все мои требования. В частности, его текстовая форма была устроена довольно просто: это JSON-файл, в котором содержится несколько массивов сущностей — меши, текстуры, узлы графа сцены; если им нужно ссылаться друг на друга, они используют индексы в этих массивах.</p>
+<p>Довольно понятная и подробная спецификация glTF есть <a href="https://github.com/KhronosGroup/glTF">в официальном репозитории</a>; можно также заглянуть <a href="https://github.com/iliazeus/zmbx2gltf/blob/6729df3e/src/gltf/types.ts">в репозиторий</a> ко мне — там есть TypeScript-типы для JSON-формы glTF. Здесь я не буду его описывать подробно; расскажу лишь о значимых отличиях его от <code>.mbx</code>, и трудностях, которые возникли у меня при конвертации.</p>
+<h2 id="chast-3-iz-mbx-v-gltf"><a class="anchor" href="#chast-3-iz-mbx-v-gltf" title="link to section">#</a>Часть 3: из <code>.mbx</code> в glTF</h2>
+<h3 id="matritsy-transformatsii"><a class="anchor" href="#matritsy-transformatsii" title="link to section">#</a>Матрицы трансформации</h3>
+<p>Как я писал выше, в <code>.mbx</code> матрицы трансформации задаются в виде массива из 16 чисел, в row-major порядке. glTF же <a href="https://registry.khronos.org/glTF/specs/2.0/glTF-2.0.html#data-alignment">использует</a> column-major порядок. Превратить один в другой довольно несложно — нужно <a href="https://github.com/iliazeus/zmbx2gltf/blob/6729df3e/src/convert/utils.ts#L9">транспонировать</a> матрицу.</p>
+<h3 id="png-kartinki-v-base64"><a class="anchor" href="#png-kartinki-v-base64" title="link to section">#</a>PNG-картинки в Base64</h3>
+<p>В файле <code>.mbx</code> все изображения-текстуры заданы в формате PNG и закодированы в Base64. glTF тоже <a href="https://registry.khronos.org/glTF/specs/2.0/glTF-2.0.html#images">позволяет</a> использовать такое представление, но его нужно оформить в виде <a href="https://en.wikipedia.org/wiki/Data_URI_scheme">data URI</a>. Сделать это тоже несложно — фактически, нужно просто <a href="https://github.com/iliazeus/zmbx2gltf/blob/6729df3e/src/convert/utils.ts#L3">добавить в начало</a> префикс <code>data:image/png;base64,</code>.</p>
+<h3 id="tsveta-plius-dekali"><a class="anchor" href="#tsveta-plius-dekali" title="link to section">#</a>Цвета плюс декали</h3>
+<p>Для некоторых деталей Лего в <code>.mbx</code>-файлах указаны и основной цвет, и декаль (specular-текстура). Обычно основной цвет — это цвет пластик детали, а декаль представляет наклейку на ней. В glTF <a href="https://registry.khronos.org/glTF/specs/2.0/glTF-2.0.html#metallic-roughness-material">с этим строже</a> — либо цвет, либо текстура. Поэтому понадобилось <a href="https://github.com/iliazeus/zmbx2gltf/blob/6729df3e/src/convert/materials.ts#L83">декодировать PNG</a>, <a href="https://github.com/iliazeus/zmbx2gltf/blob/6729df3e/src/convert/materials.ts#L88">смешивать</a> его с основным цветом, а затем <a href="https://github.com/iliazeus/zmbx2gltf/blob/6729df3e/src/convert/materials.ts#L94">упаковывать</a> обратно. Для этого я использовал библиотеку <a href="https://www.npmjs.com/package/pngjs">PNG.js</a>.</p>
+<h3 id="nereshennaia-problema-bump-map-normal-map"><a class="anchor" href="#nereshennaia-problema-bump-map-normal-map" title="link to section">#</a>Нерешенная проблема: bump map + normal map</h3>
+<p>На некоторых деталях висит сразу и bump map, и normal map; glTF поддерживает только normal map. В целом, можно было бы преобразовать первую во вторую и смешать их, если бы не одно "но": UV-координаты для этих текстур почти всегда разные. Здесь я решил сдаться; как смешивать текстуры с разными развертками, я не придумал.</p>
+<h3 id="udalenie-neispol-zuemykh-sushchnostei"><a class="anchor" href="#udalenie-neispol-zuemykh-sushchnostei" title="link to section">#</a>Удаление неиспользуемых сущностей</h3>
+<p>Из-за того, что я в итоге поддерживаю не все фичи <code>.mbx</code>, в итоговый файл попадали сущности, которые нигде не использовались. Например, я мог конвертировать bump map, и только потом понять, что его не получится использовать. Я решил удалять такие сущности из выходного файла. Но нельзя было просто убрать сущности из массивов: тогда поехали бы индексы-ссылки. Поэтому я <a href="https://github.com/iliazeus/zmbx2gltf/blob/6729df3e/src/gltf/optimizer.ts#L21">реализовал</a> обобщенный алгоритм перенумеровывания сущностей.</p>
+<p>Для этого я позаимствовал из C++ идею ссылок, <a href="https://github.com/iliazeus/zmbx2gltf/blob/6729df3e/src/gltf/optimizer.ts#L3">реализовав</a> их как пару "геттер"-"сеттер", которые в замыкании хранили объект и ключ поля, который они представляли. С помощью них же работает и <a href="https://github.com/iliazeus/zmbx2gltf/blob/6729df3e/src/gltf/optimizer.ts#L56">дедупликация</a> сущностей — как оказалось, одна и та же текстура в <code>.mbx</code>-файле может быть продублирована для нескольких деталей.</p>
+<h2 id="itogi"><a class="anchor" href="#itogi" title="link to section">#</a>Итоги</h2>
+<p>В итоге, у меня получился <a href="https://github.com/iliazeus/zmbx2gltf">инструмент</a> для преобразования <code>.zmbx</code>-файлов в <code>.gltf</code>-файлы. Преобразование вышло с потерями, но этого мне было, в целом, достаточно. Для <a href="/legos/">своего сайта</a> я использовал <a href="https://github.com/kovacsv/Online3DViewer">Online3DViewer</a>; для меня его киллер-фичей стала возможность рисовать линиями ребра моделей — почти как в настоящих инструкциях Лего.</p>
+<p>В плане реверс-инжиниринга, <code>.zmbx</code> оказался довольно простым, но это все равно был ценный для меня опыт. Я надеюсь, что описание формата в этой статье и <a href="https://github.com/iliazeus/zmbx2glTF/blob/6729df3e/src/mbx/types.ts">в репозитории</a> — насколько мне известно, единственное публично доступное — поможет и другим людям делать и другие инструменты.</p>
+
+    </main>
+
+    <footer>
+      <nav>
+        <ul class="horizontal small">
+          <li><a rel="me" href="https://github.com/iliazeus">github</a></li>
+          <li><a rel="me" href="https://habr.com/users/iliazeus">habr</a></li>
+          <li><a rel="me" href="https://lor.sh/@iliazeus">mastodon</a></li>
+          <li><a rel="me" href="mailto:iliazeus@proton.me">mailto</a></li>
+          <li>made with <a href="https://www.getzola.org/">Zola</a></li>
+        </ul>
+      </nav>
+    </footer>
+  </body>
+</html>

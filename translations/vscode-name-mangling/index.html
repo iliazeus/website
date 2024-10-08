@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="ru">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="description" content="Как уменьшали размер VS Code, используя name mangling. Сокращение идентификаторов во время сборки. iliazeus" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <link rel="alternate" type="application/atom+xml" href="https://iliazeus.lol/atom.xml">
+
+    <link
+      rel="preload" as="style"
+      href="https://code.cdn.mozilla.net/fonts/fira.css"
+      onload="this.onload=null;this.rel='stylesheet'"
+    />
+
+    <style>.if-not-js { display: none !important }</style>
+    <noscript><style>
+      .if-js { display: none !important }
+      .if-not-js { display: unset !important }
+    </style></noscript>
+
+    <script src="/theme.js"></script>
+    <link rel="stylesheet" href="/style.css" />
+
+    <title>Как уменьшали размер VS Code, используя name mangling | iliazeus</title>
+  </head>
+
+  <body>
+    <a href="#" class="local if-js theme-toggle" style="cursor: pointer; position: absolute; right: 8px; top: 8px">toggle dark theme</a>
+
+    <header>
+      <hgroup>
+        <h1><a href="/" title="go to main page">iliazeus</a></h1>
+        <nav>
+          <ul class="horizontal small">
+            <li><a rel="me" href="https://github.com/iliazeus">github</a></li>
+            <li><a rel="me" href="https://habr.com/users/iliazeus">habr</a></li>
+            <li><a rel="me" href="https://lor.sh/@iliazeus">mastodon</a></li>
+            <li><a rel="me" href="mailto:iliazeus@proton.me">mailto</a></li>
+          </ul>
+        </nav>
+        <p>илья, иль не я</p>
+      </hgroup>
+    </header>
+
+    <main>
+      <hgroup>
+        <h2>Как уменьшали размер VS Code, используя name mangling</h2>
+        <ul class="horizontal">
+          <li>2023-08-22</li>
+          <li>ru</li>
+          
+          <li><a target="_blank" href="https:&#x2F;&#x2F;code.visualstudio.com&#x2F;blogs&#x2F;2023&#x2F;07&#x2F;20&#x2F;mangling-vscode"  rel="author" >by Matt Bierner</a></li>
+          
+          <li><a target="_blank" href="https:&#x2F;&#x2F;habr.com&#x2F;ru&#x2F;articles&#x2F;756186&#x2F;"  rel="alternate" >habr</a></li>
+          
+        </ul>
+      </hgroup>
+
+      <p>Не так давно, мы уменьшили на 20% объем итогового скомпилированного JavaScript-кода в Visual Studio Code. В абсолютных числах это около 3.9 МБ. Хоть это и меньше типичной гифки из блога, цифра все равно значительная! Это положительно влияет не только на объем скачиваемых данных для очередного обновления, но и на время запуска: меньше кода значит меньше работы для парсера и интерпретатора. И ко всему прочему, мы добились этого без удаления кода или каких-либо рефакторингов. Вместо этого, мы работали над новым шагом сборки: name mangling, сокращение имен сущностей.</p>
+<p>В этой статье рассказывается, как мы обнаружили возможность такой оптимизации, какие подходы рассматривали, и как в конце концов добились уменьшения размера на 20%. Возможно, будет не так много конкретики — я хочу, скорее, рассказать, как в команде VS Code подходят к решению инженерных задач. Тем более, что наше решение, скорее всего, не совсем оптимальное, и уж точно подойдет не всем кодовым базам.</p>
+<h2 id="diagnostiruem-problemu">Диагностируем проблему</h2>
+<p>Команда VS Code всегда серьезно подходит к производительности. Мы оптимизируем горячий код, уменьшаем количество перерисовок UI и ускоряем запуск программы. Кроме всего прочего, это означает, что мы всегда пытаемся по возможности уменьшить размер приложения. Еще более насущной проблема размера стала с выходом web-версии VS Code (https://vscode.dev). По этим причинам, мы следим за изменениями размера скомпилированного кода от релиза к релизу.</p>
+<p>К сожалению, чаще всего размер растет. Несмотря на то, что мы стараемся не перегружать VS Code фичами, отдавая часть на откуп расширениям, их число все равно увеличивается, а с ними приходит и новый код. Например, <code>workbench.js</code>, один из наших главных скомпилированных файлов, за восемь лет вырос в четыре раза. Конечно, это объясняется тем, что тогда у VS Code, еще не было многих привычных сейчас фич — вкладок, к примеру, или встроенного терминала. Но увеличение размера кода все равно нас беспокоило.</p>
+<figure class="border">
+<p><img src="https://iliazeus.lol/translations/vscode-name-mangling/graph.png" alt="Размер workbench.js, главного файла VS Code, по версиям" /></p>
+<figcaption>Размер workbench.js, главного файла VS Code, по версиям</figcaption>
+</figure>
+<p>Размер приложения мог бы вырасти намного больше, чем в четыре раза — если бы мы все это время не искали способы с этим бороться. Все очевидные оптимизации мы уже применяем; в их числе минификация с помощью <a href="https://esbuild.github.io/">esbuild</a>. А находить новые с годами становится все сложнее. Многие из оптимизаций просто слишком рискованны, или требуют слишком много человеко-часов для внедрения и поддержки. Поэтому годы шли, а размер билда рос.</p>
+<p>Пока однажды, в прошлом году, я не заметил неожиданную вещь. Наш минифицированный JavaScript-код все равно содержал кучу длинных идентификаторов вроде <code>extensionIgnoredRecommendationsService</code>. Неожиданно это было потому, что <code>esbuild</code> должен был уметь превращать их в более короткие!</p>
+<p>Этот процесс в среде JavaScript-тулинга называют name mangling — термин <a href="https://en.wikipedia.org/wiki/Name_mangling">заимствован</a> из мира компилируемых языков, но используется немного в другом значении. Как часть минификации JavaScript, name mangling превращает длинные имена в короткие. Например, такой код:</p>
+<pre data-lang="typescript" class="language-typescript z-code"><code class="language-typescript" data-lang="typescript"><span class="z-source z-ts"><span class="z-meta z-var z-expr z-ts"><span class="z-storage z-type z-ts">const</span> <span class="z-meta z-var-single-variable z-expr z-ts"><span class="z-meta z-definition z-variable z-ts"><span class="z-variable z-other z-constant z-ts">someLongVariableName</span></span> </span><span class="z-keyword z-operator z-assignment z-ts">=</span> <span class="z-constant z-numeric z-decimal z-ts">123</span></span><span class="z-punctuation z-terminator z-statement z-ts">;</span>
+</span><span class="z-source z-ts"><span class="z-meta z-function-call z-ts"><span class="z-support z-class z-console z-ts">console</span><span class="z-punctuation z-accessor z-ts">.</span><span class="z-support z-function z-console z-ts">log</span></span><span class="z-meta z-brace z-round z-ts">(</span><span class="z-variable z-other z-readwrite z-ts">someLongVariableName</span><span class="z-meta z-brace z-round z-ts">)</span><span class="z-punctuation z-terminator z-statement z-ts">;</span>
+</span></code></pre>
+<p>Превращается в такой:</p>
+<pre data-lang="typescript" class="language-typescript z-code"><code class="language-typescript" data-lang="typescript"><span class="z-source z-ts"><span class="z-meta z-var z-expr z-ts"><span class="z-storage z-type z-ts">const</span> <span class="z-meta z-var-single-variable z-expr z-ts"><span class="z-meta z-definition z-variable z-ts"><span class="z-variable z-other z-constant z-ts">x</span></span> </span><span class="z-keyword z-operator z-assignment z-ts">=</span> <span class="z-constant z-numeric z-decimal z-ts">123</span></span><span class="z-punctuation z-terminator z-statement z-ts">;</span>
+</span><span class="z-source z-ts"><span class="z-meta z-function-call z-ts"><span class="z-support z-class z-console z-ts">console</span><span class="z-punctuation z-accessor z-ts">.</span><span class="z-support z-function z-console z-ts">log</span></span><span class="z-meta z-brace z-round z-ts">(</span><span class="z-variable z-other z-readwrite z-ts">x</span><span class="z-meta z-brace z-round z-ts">)</span><span class="z-punctuation z-terminator z-statement z-ts">;</span>
+</span></code></pre>
+<p>С точки зрения языков, которые компилируются в машинный код, такое преобразование выглядит глупо. Но так как приложения на TypeScript и JavaScript распространяются в виде JS-кода, длина имен играет далеко не последнюю роль в размере билда.</p>
+<p>Разумеется, нет смысла бросать все и идти переименовывать все переменные в коде. Даже самые большие оптимизации размера билда не должны идти в ущерб читаемости и поддерживаемости кода — а код, где все имена однобуквенные, сложно назвать читаемым! Другое дело — менять имена автоматически, во время сборки приложения. Как это и должен делать <code>esbuild</code>.</p>
+<p>Правда, алгоритм, который он использует, очень консервативен. Он меняет имена, только если точно уверен, что это ничего не сломает; грубо говоря, он меняет только имена локальных переменных и аргументов функций. Такое умолчание вполне разумно — дебажить код, сломанный во время минификации, это то еще развлечение. Но, с другой стороны, это значит, что многие идентификаторы <code>esbuild</code> пропускает, хотя мог бы их сократить.</p>
+<p>Как пример того, как name mangling может все сломать, рассмотрим такой код:</p>
+<pre data-lang="typescript" class="language-typescript z-code"><code class="language-typescript" data-lang="typescript"><span class="z-source z-ts"><span class="z-meta z-var z-expr z-ts"><span class="z-storage z-type z-ts">const</span> <span class="z-meta z-var-single-variable z-expr z-ts"><span class="z-meta z-definition z-variable z-ts"><span class="z-variable z-other z-constant z-ts">obj</span></span> </span><span class="z-keyword z-operator z-assignment z-ts">=</span> <span class="z-meta z-objectliteral z-ts"><span class="z-punctuation z-definition z-block z-ts">{</span> <span class="z-meta z-object z-member z-ts"><span class="z-meta z-object-literal z-key z-ts">longPropertyName</span></span><span class="z-meta z-object z-member z-ts"><span class="z-meta z-object-literal z-key z-ts"><span class="z-punctuation z-separator z-key-value z-ts">:</span></span> <span class="z-constant z-numeric z-decimal z-ts">123</span> </span><span class="z-punctuation z-definition z-block z-ts">}</span></span></span><span class="z-punctuation z-terminator z-statement z-ts">;</span>
+</span><span class="z-source z-ts">
+</span><span class="z-source z-ts"><span class="z-meta z-function z-ts"><span class="z-storage z-type z-function z-ts">function</span> <span class="z-meta z-definition z-function z-ts"><span class="z-entity z-name z-function z-ts">lookup</span></span><span class="z-meta z-parameters z-ts"><span class="z-punctuation z-definition z-parameters z-begin z-ts">(</span><span class="z-variable z-parameter z-ts">prop</span><span class="z-punctuation z-definition z-parameters z-end z-ts">)</span></span> <span class="z-meta z-block z-ts"><span class="z-punctuation z-definition z-block z-ts">{</span>
+</span></span></span><span class="z-source z-ts"><span class="z-meta z-function z-ts"><span class="z-meta z-block z-ts">  <span class="z-keyword z-control z-flow z-ts">return</span> <span class="z-variable z-other z-readwrite z-ts">obj</span><span class="z-meta z-array z-literal z-ts"><span class="z-meta z-brace z-square z-ts">[</span><span class="z-variable z-other z-readwrite z-ts">prop</span><span class="z-meta z-brace z-square z-ts">]</span></span><span class="z-punctuation z-terminator z-statement z-ts">;</span>
+</span></span></span><span class="z-source z-ts"><span class="z-meta z-function z-ts"><span class="z-meta z-block z-ts"><span class="z-punctuation z-definition z-block z-ts">}</span></span></span>
+</span><span class="z-source z-ts">
+</span><span class="z-source z-ts"><span class="z-meta z-function-call z-ts"><span class="z-support z-class z-console z-ts">console</span><span class="z-punctuation z-accessor z-ts">.</span><span class="z-support z-function z-console z-ts">log</span></span><span class="z-meta z-brace z-round z-ts">(</span><span class="z-meta z-function-call z-ts"><span class="z-entity z-name z-function z-ts">lookup</span></span><span class="z-meta z-brace z-round z-ts">(</span><span class="z-string z-quoted z-double z-ts"><span class="z-punctuation z-definition z-string z-begin z-ts">&quot;</span>longPropertyName<span class="z-punctuation z-definition z-string z-end z-ts">&quot;</span></span><span class="z-meta z-brace z-round z-ts">)</span><span class="z-meta z-brace z-round z-ts">)</span><span class="z-punctuation z-terminator z-statement z-ts">;</span>
+</span></code></pre>
+<p>Минификатор мог бы заменить <code>longPropertyName</code> на просто <code>x</code>. Но тогда бы сломался доступ к полю по ключу-переменной:</p>
+<pre data-lang="typescript" class="language-typescript z-code"><code class="language-typescript" data-lang="typescript"><span class="z-source z-ts"><span class="z-meta z-var z-expr z-ts"><span class="z-storage z-type z-ts">const</span> <span class="z-meta z-var-single-variable z-expr z-ts"><span class="z-meta z-definition z-variable z-ts"><span class="z-variable z-other z-constant z-ts">obj</span></span> </span><span class="z-keyword z-operator z-assignment z-ts">=</span> <span class="z-meta z-objectliteral z-ts"><span class="z-punctuation z-definition z-block z-ts">{</span> <span class="z-meta z-object z-member z-ts"><span class="z-meta z-object-literal z-key z-ts">x</span></span><span class="z-meta z-object z-member z-ts"><span class="z-meta z-object-literal z-key z-ts"><span class="z-punctuation z-separator z-key-value z-ts">:</span></span> <span class="z-constant z-numeric z-decimal z-ts">123</span> </span><span class="z-punctuation z-definition z-block z-ts">}</span></span></span><span class="z-punctuation z-terminator z-statement z-ts">;</span> <span class="z-comment z-line z-double-slash z-ts"><span class="z-punctuation z-definition z-comment z-ts">//</span></span><span class="z-comment z-line z-double-slash z-ts"> Здесь минификатор заменил `longPropertyName`</span>
+</span><span class="z-source z-ts">
+</span><span class="z-source z-ts"><span class="z-meta z-function z-ts"><span class="z-storage z-type z-function z-ts">function</span> <span class="z-meta z-definition z-function z-ts"><span class="z-entity z-name z-function z-ts">lookup</span></span><span class="z-meta z-parameters z-ts"><span class="z-punctuation z-definition z-parameters z-begin z-ts">(</span><span class="z-variable z-parameter z-ts">prop</span><span class="z-punctuation z-definition z-parameters z-end z-ts">)</span></span> <span class="z-meta z-block z-ts"><span class="z-punctuation z-definition z-block z-ts">{</span>
+</span></span></span><span class="z-source z-ts"><span class="z-meta z-function z-ts"><span class="z-meta z-block z-ts">  <span class="z-keyword z-control z-flow z-ts">return</span> <span class="z-variable z-other z-readwrite z-ts">obj</span><span class="z-meta z-array z-literal z-ts"><span class="z-meta z-brace z-square z-ts">[</span><span class="z-variable z-other z-readwrite z-ts">prop</span><span class="z-meta z-brace z-square z-ts">]</span></span><span class="z-punctuation z-terminator z-statement z-ts">;</span>
+</span></span></span><span class="z-source z-ts"><span class="z-meta z-function z-ts"><span class="z-meta z-block z-ts"><span class="z-punctuation z-definition z-block z-ts">}</span></span></span>
+</span><span class="z-source z-ts">
+</span><span class="z-source z-ts"><span class="z-meta z-function-call z-ts"><span class="z-support z-class z-console z-ts">console</span><span class="z-punctuation z-accessor z-ts">.</span><span class="z-support z-function z-console z-ts">log</span></span><span class="z-meta z-brace z-round z-ts">(</span><span class="z-meta z-function-call z-ts"><span class="z-entity z-name z-function z-ts">lookup</span></span><span class="z-meta z-brace z-round z-ts">(</span><span class="z-string z-quoted z-double z-ts"><span class="z-punctuation z-definition z-string z-begin z-ts">&quot;</span>longPropertyName<span class="z-punctuation z-definition z-string z-end z-ts">&quot;</span></span><span class="z-meta z-brace z-round z-ts">)</span><span class="z-meta z-brace z-round z-ts">)</span><span class="z-punctuation z-terminator z-statement z-ts">;</span> <span class="z-comment z-line z-double-slash z-ts"><span class="z-punctuation z-definition z-comment z-ts">//</span></span><span class="z-comment z-line z-double-slash z-ts"> А здесь — нет, и все сломалось</span>
+</span></code></pre>
+<p>Пример, понятное дело, искусственный. Но подобное действительно может произойти в продакшн-коде. Сломаться могут:</p>
+<ul>
+<li>доступ к полю по переменной;</li>
+<li>сериализация и парсинг JSON;</li>
+<li>API, которые предоставляет ваш код — клиент ожидает конкретные имена;</li>
+<li>API, которые используете вы — к примеру, DOM.</li>
+</ul>
+<p>Несомненно, <code>esbuild</code> можно заставить сократить вообще все идентификаторы. Но сразу сломается все из списка выше — и для VS Code это фатально.</p>
+<p>Но я все равно считал, что можно было бы справиться лучше. Если нельзя поменять <em>каждое</em> имя, то, может быть, можно хотя бы поменять еще какое-то их подмножество?</p>
+<h2 id="pervaia-popytka-sokrashchaem-privatnye-polia">Первая попытка: сокращаем приватные поля</h2>
+<p>Я заметил еще одну вещь, когда смотрел на наш скомпилированный код: многие длинные имена начинались с <code>_</code>. В нашей кодовой базе так обозначаются приватные поля. Я подумал: ага! к ним никто не обращается извне соответствующих классов; наверняка их можно безболезненно переименовать, и никакой другой код это не затронет.</p>
+<p>Меня останавливало только то, что, по какой-то причине, сам <code>esbuild</code> так не делал. Наверняка на это есть какая-то причина, подумал я. И действительно — это бы сломало доступ к полю по ключу-переменной, как в примере выше. Конечно, <em>хороший</em> TypeScript-программист вряд ли стал бы так обращаться к приватным полям, но в реальном мире такой код все-таки встречается.</p>
+<p>Стоит, кроме того, понимать, что ключевое слово <code>private</code> в TypeScript, на самом деле, не такое уж строгое. Компиляция в JavaScript, фактически, просто стирает это ключевое слово, превращая приватные поля в обычные. Это означает, что ничего не мешает <em>невоспитанному</em> программисту залезть прямо в кишочки класса:</p>
+<pre data-lang="typescript" class="language-typescript z-code"><code class="language-typescript" data-lang="typescript"><span class="z-source z-ts"><span class="z-meta z-class z-ts"><span class="z-storage z-type z-class z-ts">class</span> <span class="z-entity z-name z-type z-class z-ts">Foo</span> <span class="z-punctuation z-definition z-block z-ts">{</span>
+</span></span><span class="z-source z-ts"><span class="z-meta z-class z-ts">  <span class="z-storage z-modifier z-ts">private</span><span class="z-meta z-field z-declaration z-ts"> <span class="z-meta z-definition z-property z-ts"><span class="z-variable z-object z-property z-ts">bar</span></span> <span class="z-keyword z-operator z-assignment z-ts">=</span> <span class="z-constant z-numeric z-decimal z-ts">123</span></span><span class="z-punctuation z-terminator z-statement z-ts">;</span>
+</span></span><span class="z-source z-ts"><span class="z-meta z-class z-ts"><span class="z-punctuation z-definition z-block z-ts">}</span></span>
+</span><span class="z-source z-ts">
+</span><span class="z-source z-ts"><span class="z-meta z-var z-expr z-ts"><span class="z-storage z-type z-ts">const</span> <span class="z-meta z-var-single-variable z-expr z-ts"><span class="z-meta z-definition z-variable z-ts"><span class="z-variable z-other z-constant z-ts">foo</span></span><span class="z-meta z-type z-annotation z-ts"><span class="z-keyword z-operator z-type z-annotation z-ts">:</span> <span class="z-support z-type z-primitive z-ts">any</span> </span></span><span class="z-keyword z-operator z-assignment z-ts">=</span> <span class="z-new z-expr z-ts"><span class="z-keyword z-operator z-new z-ts">new</span> <span class="z-entity z-name z-type z-ts">Foo</span><span class="z-meta z-brace z-round z-ts">(</span><span class="z-meta z-brace z-round z-ts">)</span></span></span><span class="z-punctuation z-terminator z-statement z-ts">;</span>
+</span><span class="z-source z-ts"><span class="z-meta z-function-call z-ts"><span class="z-support z-class z-console z-ts">console</span><span class="z-punctuation z-accessor z-ts">.</span><span class="z-support z-function z-console z-ts">log</span></span><span class="z-meta z-brace z-round z-ts">(</span><span class="z-variable z-other z-object z-ts">foo</span><span class="z-punctuation z-accessor z-ts">.</span><span class="z-variable z-other z-property z-ts">bar</span><span class="z-meta z-brace z-round z-ts">)</span><span class="z-punctuation z-terminator z-statement z-ts">;</span>
+</span></code></pre>
+<p>Ваш код <em>(я надеюсь)</em> вряд ли делает что-нибудь подобное, но переименование приватных полей может аукнуться тысячей чрезвычайно веселых способов: при использовании <code>{ ...spread }</code>, при сериализации, а также при неудачном совпадении имен приватных полей нескольких классов.</p>
+<p>Применительно конкретно к VS Code, однако, у меня было большое преимущество: наш код адекватного (по большей части) качества. Я вполне мог рассчитывать, что к приватным полям никогда не обращаются по ключу-переменной или через <code>any</code>. Поэтому я мог действовать смелее, чем <code>esbuild</code>.</p>
+<p>Итак, я и <a href="https://twitter.com/johannesrieken">Йоханнес Рикен</a> стали искать инструменты для сокращения имен приватных полей. Нашей первой идеей было заменить все приватные поля "в стиле TypeScript" (<code>private foo</code>) на <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Classes/Private_class_fields">"настоящие" приватные поля</a> из JavaScript (<code>#foo</code>). Они лишены всех описанных выше проблем, поэтому <code>esbuild</code> с радостью их переименовывает. Кроме того, логично было отказаться от TS-специфичной фичи в пользу доступной в чистом JS.</p>
+<p>К сожалению, мы довольно быстро поняли, что так просто ничего не получится. В код придется внести большое количество изменений; кроме всего прочего, придется убрать все использования <a href="https://www.typescriptlang.org/docs/handbook/2/classes.html#parameter-properties">parameter properties</a>, даже там, где они делают код намного читаемее. Кроме того, приватные поля — довольно новая для JavaScript фича, и не везде она уже хорошо оптимизирована. В некоторых ситуациях, код с приватными полями может быть <a href="https://bugs.webkit.org/show_bug.cgi?id=258660">медленнее на 95%</a>! В будущем, возможно, использование приватных полей JS было бы для нас правильным решением — но не сейчас.</p>
+<p>Далее, мы обратили внимание на то, что <code>esbuild</code> можно заставить сокращать имена у тех полей, которые матчатся заданным регулярным выражением. Это условие касается только самих имен — не включая квалификаторы вроде <code>private</code> — но мы рассчитывали, что все наши <code>private</code> и <code>protected</code>-поля начинаются с символа <code>_</code>. Довольно быстро мы написали конфиг <code>esbuild</code>, который бы сокращал все такие имена.</p>
+<p>И довольно быстро выяснили, что все не так просто. Во-первых, к сожалению, все еще не везде в нашей кодовой базе приватные поля начинают с подчеркивания. Во-вторых, иногда с подчеркивания начинаются <em>публичные</em> поля — как правило, там, где поле должно быть доступно извне, но не должно быть частью API; например, в тестах.</p>
+<p>Мы не были уверены, что после такого преобразования наш код останется корректным. В этом, конечно, можно было бы убедиться путем тщательного тестирования, но свеч это не стоит, да и стопроцентного покрытия добиться чрезвычайно трудно.</p>
+<h2 id="sokrashchaem-privatnye-polia-s-pomoshch-iu-typescript">Сокращаем приватные поля с помощью TypeScript</h2>
+<p>Нашей новой идеей было следующее: что, если бы мы смогли заставить TypeScript проверить, что поля были переименованы корректно? Компилятор ведь умеет отлавливать обращения к необъявленным переменным. Мы решили сокращать имена в процессе сборки <em>до</em> вызова компилятора TypeScript, чтобы он ругнулся на забытое где-то старое имя, которое теперь нигде не объявлено.</p>
+<p>Кроме того, если у нас в распоряжении исходный TypeScript-код, мы можем вытащить из него и сократить имена только тех полей, которые действительно являются <code>private</code>, без необходимости проставлять подчеркивание в каждое имя. Мы даже можем не писать руками код самого переименования — в TypeScript уже есть поддержка подобных рефакторингов.</p>
+<p>Вот псевдокод получившегося у нас алгоритма сокращения имен приватных полей:</p>
+<pre class="z-code"><code><span class="z-text z-plain">используя TypeScript AST, получаем все private и protected поля в кодовой базе
+</span><span class="z-text z-plain">для каждого такого поля:
+</span><span class="z-text z-plain">    если поле подлежит сокращению:
+</span><span class="z-text z-plain">        придумать новое уникальное имя
+</span><span class="z-text z-plain">        сгенерировать TypeScript-рефакторинг, переименовывающий поле
+</span><span class="z-text z-plain">
+</span><span class="z-text z-plain">применить все сгенерированные рефакторинги
+</span><span class="z-text z-plain">
+</span><span class="z-text z-plain">отдать TypeScript на компиляцию полученный исходник
+</span></code></pre>
+<p>Это очень наивный алгоритм, но он, по большей части, работает! Но для нашей кодовой базы нам пришлось обработать еще несколько крайних случаев:</p>
+<ul>
+<li>
+<p>Новое имя для поля должно быть уникальным не только в пределах текущего класса, но и в пределах всех его предков и потомков. Причина, опять-таки, в том, что ключевое слово <code>private</code> в TypeScript существует только на этапе компиляции, и ничего не мешает классам в рантайме залезть в приватные поля своих предков или потомков. К счастью, TypeScript выдает ошибку компиляции, если видит коллизию полей класса и его потомка.</p>
+</li>
+<li>
+<p>В нескольких местах нашей кодовой базы, классы-потомки делали унаследованное приватное поле публичным. Во многих местах это было сделано по ошибке, но мы все-таки добавили в наш алгоритм отдельную проверку такого случая.</p>
+</li>
+</ul>
+<p>После того, как мы добавили обработку этих крайних случаев, мы стали получать рабочие билды. Проверив наш скрипт на <code>workbench.js</code>, основном файле VS Code, мы обнаружили, что его размер уменьшился с 12.3 МБ до 10.6 МБ — почти на 14%. Это очень даже неплохо, если учесть, что нам почти не пришлось менять сам код!</p>
+<h2 id="dal-neishie-issledovaniia">Дальнейшие исследования</h2>
+<p>Наш эксперимент с сокращением приватных имен показал, что в кодовой базе и системе сборки VS Code все еще остался потенциал для значительных оптимизаций, которые не требовали бы больших затрат и изменений кода. Не думаю, что я был первым, кто заметил длинные имена в скомпилированном коде VS Code; однако сократить их так, чтобы ничего не сломать было, как мы выяснили, не совсем тривиально.</p>
+<p>Когда мы взялись за эту задачу, мы прежде всего определили конкретное подмножество имен, которые можно безопасно сократить — имена приватных полей. Затем мы нашли максимально безопасный способ это сделать. Для этого нам понадобился TypeScript — с его помощью мы ищем и переименовываем переменные, и он же потом собирает код и ругается на ошибки. Очень помогло нам и то, что в нашей кодовой базе мы пытаемся следовать лучшим практикам TypeScript, а также держим весь основной код покрытым тестами. Все это позволило нам с Йоханнесом, фактически, в свободное время разработать инструмент, который помог оптимизировать размер билда, при этом никак не мешая работе над кодом.</p>
+<p>Конечно, простор для сокращения имен еще остался. В результирующем коде, к моему сожалению, я все еще видел длинные имена вроде <code>provideWorkspaceTrustExtensionProposals</code>, или — из самого заметного — почти 5 тысяч упоминаний функции <code>localize</code>.</p>
+<p>Пользуясь описанным выше подходом, я вскорости нашел еще одно подмножество имен, которые можно безопасно сократить: экспортируемые имена, если они не являются частью публичного API. Я был уверен, что их тоже можно сравнительно легко сократить.</p>
+<p>И, по большей части, это было так. Хотя пришлось, конечно, опять обрабатывать крайние случаи. К примеру, нам совсем не нужно было трогать API для расширений VS Code. Мы также не могли ничего делать с теми именами, которые используются из чистого JS — в основном, это точки входа процессов и воркеров.</p>
+<p>Сокращение имен экспортов уменьшило размер <code>workbench.js</code> еще сильнее — с 10.6 МБ до 9.8 МБ. В итоге, этот файл стал на 20% меньше, чем был, когда мы только начинали. По всей кодовой базе сокращение имен помогло сэкономить 3.9 МБ размера итогового JavaScript-кода. Это означало не только меньший размер на диске, но и меньшее время старта приложения.</p>
+<p>Ниже я еще раз приведу график изменения размера <code>workbench.js</code> по версиям. Два резких падения в правой части графика — это эффект от сокращения имен: имена приватных полей были сокращены в VS Code 1.74, имена экспортов — в VS Code 1.80.</p>
+<figure class="border">
+<p><img src="https://iliazeus.lol/translations/vscode-name-mangling/graph.png" alt="Размер workbench.js, главного файла VS Code, по версиям" /></p>
+<figcaption>Размер workbench.js, главного файла VS Code, по версиям</figcaption>
+</figure>
+<p>Безусловно, наша реализация сокращения имен далека от идеала, и еще много длинных имен остается после сборки. Вероятно, мы еще вернемся к этой теме, если поймем, что дальнейшие оптимизации дадут нам серьезный выхлоп, и если будет способ сделать их, не сломав код. В будущем, нам даже, возможно, не потребуется что-то самим для этого писать — сборщики с каждым годом становятся все умнее, и все лучше понимают, какие имена можно безопасно менять. Нашу реализацию сокращения имен можно увидеть <a href="https://github.com/microsoft/vscode/blob/48cd8e0c1b142a46f0956b593d8331145634658e/build/lib/mangle/index.ts">по ссылке</a>.</p>
+<p>Надеюсь, этим примером я смог показать, что нам важна оптимизация, и как мы к ней подходим. Оптимизация, в нашем понимании — это бесконечный процесс. Мы используем мониторинг размера билда (и других показателей), чтобы найти потенциал для очередного улучшения. Мы стараемся применять лучшие практики TypeScript, чтобы не бояться автоматизированных рефакторингов. Мы пишем инструменты, которые позволяют нам быть уверенными, что изменения не будут огромными и не сломают код.</p>
+<p>Я горжусь результатом, и горжусь тем, как мы его достигли.</p>
+
+    </main>
+
+    <footer>
+      <nav>
+        <ul class="horizontal small">
+          <li><a rel="me" href="https://github.com/iliazeus">github</a></li>
+          <li><a rel="me" href="https://habr.com/users/iliazeus">habr</a></li>
+          <li><a rel="me" href="https://lor.sh/@iliazeus">mastodon</a></li>
+          <li><a rel="me" href="mailto:iliazeus@proton.me">mailto</a></li>
+          <li>made with <a href="https://www.getzola.org/">Zola</a></li>
+        </ul>
+      </nav>
+    </footer>
+  </body>
+</html>

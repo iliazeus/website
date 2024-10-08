@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="description" content="zmbx2gltf. A tool to convert mecabricks .zmbx files to gltf. iliazeus" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <link rel="alternate" type="application/atom+xml" href="https://iliazeus.lol/atom.xml">
+
+    <link
+      rel="preload" as="style"
+      href="https://code.cdn.mozilla.net/fonts/fira.css"
+      onload="this.onload=null;this.rel='stylesheet'"
+    />
+
+    <style>.if-not-js { display: none !important }</style>
+    <noscript><style>
+      .if-js { display: none !important }
+      .if-not-js { display: unset !important }
+    </style></noscript>
+
+    <script src="/theme.js"></script>
+    <link rel="stylesheet" href="/style.css" />
+
+    <title>zmbx2gltf | iliazeus</title>
+  </head>
+
+  <body>
+    <a href="#" class="local if-js theme-toggle" style="cursor: pointer; position: absolute; right: 8px; top: 8px">toggle dark theme</a>
+
+    <header>
+      <hgroup>
+        <h1><a href="/" title="go to main page">iliazeus</a></h1>
+        <nav>
+          <ul class="horizontal small">
+            <li><a rel="me" href="https://github.com/iliazeus">github</a></li>
+            <li><a rel="me" href="https://habr.com/users/iliazeus">habr</a></li>
+            <li><a rel="me" href="https://lor.sh/@iliazeus">mastodon</a></li>
+            <li><a rel="me" href="mailto:iliazeus@proton.me">mailto</a></li>
+          </ul>
+        </nav>
+        <p>илья, иль не я</p>
+      </hgroup>
+    </header>
+
+    <main>
+      <hgroup>
+        <h2>zmbx2gltf</h2>
+        <p>a tool to convert MecaBricks .zmbx files to glTF</p>
+        
+
+<ul class="badges">
+  
+    
+    <li><img
+      title="Language"
+      alt="TypeScript"
+      src="https://img.shields.io/static/v1?style=flat-square&label=%20&message=TypeScript"
+    /></li>
+    
+  
+    
+    <li><a
+      target="_blank"
+      href="https://github.com/iliazeus&#x2F;zmbx2gltf"
+    ><img
+      title="Source code on GitHub"
+      alt="GitHub"
+      src="https://img.shields.io/static/v1?label=%20&logo=github&style=flat-square&message=GitHub"
+    /></a></li>
+    
+  
+    
+    <li><a
+      target="_blank"
+      href="https://github.com/iliazeus&#x2F;zmbx2gltf"
+      ><img
+      title="GitHub stars"
+      alt="GitHub stars"
+      src="https://img.shields.io/github/stars/iliazeus&#x2F;zmbx2gltf?style=flat-square"
+    /></a></li>
+    
+  
+    
+    <li><a
+      target="_blank"
+      href="https://github.com/iliazeus&#x2F;zmbx2gltf"
+      ><img
+      title="Project license"
+      alt="MIT"
+      src="https://img.shields.io/github/license/iliazeus&#x2F;zmbx2gltf?style=flat-square"
+    /></a></li>
+    
+  
+</ul>
+
+        <h3>Links</h3>
+        <ul>
+          
+          <li><a target="_blank" href="https:&#x2F;&#x2F;github.com&#x2F;iliazeus&#x2F;zmbx2gltf">Source code</a></li>
+          
+          
+          
+          <li><a target="_self" href="&#x2F;articles&#x2F;zmbx2gltf-ru&#x2F;">Blog post in Russian</a></li>
+          
+          <li><a target="_self" href="&#x2F;legos&#x2F;">More 3D Lego models</a></li>
+          
+        </ul>
+      </hgroup>
+
+      <figure class="lego-3d border">
+  <div
+    id="3d-legos-cab-zmbx"
+    class="online_3d_viewer"
+     style="cursor: pointer; background: no-repeat center/100% url(/legos/cab.png)" 
+  ></div>
+
+  <div class="if-js"><small>
+    model preview powered by <a href="https://github.com/kovacsv/Online3DViewer">Online 3D Viewer</a>,
+    <br /> using my <a href="https://github.com/iliazeus/zmbx2gltf">Mecabricks-to-glTF converter</a>
+  </small></div>
+
+  <div class="if-not-js"><small>Enable JavaScript for interactive 3D model preview and glTF download.</small></div>
+
+  <div>
+    <small>download: <a href="/legos/cab.zmbx" download>zmbx (Mecabricks)</a><span class="if-js">,
+    <a style="cursor: pointer" id="download-gltf-legos-cab-zmbx" download>glTF</a></span>.</small>
+  </div>
+</figure>
+
+<script>
+  (() => {
+    const downloadGltfLink = document.getElementById("download-gltf-legos-cab-zmbx");
+    const viewerElement = document.getElementById("3d-legos-cab-zmbx");
+
+    viewerElement.style.cursor = "pointer";
+    viewerElement.innerText = "Click the image to load and view the 3D model.";
+
+    viewerElement.onclick = initViewer;
+    downloadGltfLink.onclick = async () => {
+      await initViewer();
+      downloadGltfLink.click();
+    };
+
+    async function initViewer() {
+      viewerElement.onclick = null;
+      downloadGltfLink.onclick = null;
+
+      viewerElement.innerText = "Loading scripts...";
+
+      let o3dvScript = document.getElementById("o3dv-script");
+      let zmbx2gltfScript = document.getElementById("zmbx2gltf-script");
+
+      await Promise.all([
+        o3dvScript || new Promise((cb) => {
+          o3dvScript = Object.assign(document.createElement("script"), {
+            id: "o3dv-script",
+            async: true,
+            src: "/o3dv-0.8.22.min.js",
+          });
+          o3dvScript.onload = cb;
+          document.body.appendChild(o3dvScript);
+        }),
+        zmbx2gltfScript || new Promise((cb) => {
+          zmbx2gltfScript = Object.assign(document.createElement("script"), {
+            id: "zmbx2gltf-script",
+            async: true,
+            src: "/zmbx2gltf-0.2.1.bundle.js",
+          });
+          zmbx2gltfScript.onload = cb;
+          document.body.appendChild(zmbx2gltfScript);
+        }),
+      ]);
+
+      viewerElement.innerText = "Loading model...";
+
+      const zmbxBlob = await (await fetch("/legos/cab.zmbx")).blob();
+      const zmbxFileName = "&#x2F;legos&#x2F;cab.zmbx".split("/").pop();
+
+      const gltf = await Zmbx2Gltf.convertZmbxToGltf(zmbxBlob);
+      const gltfFileName = zmbxFileName.replace(".zmbx", ".gltf");
+      const gltfFile = new File([JSON.stringify(gltf)], gltfFileName, { type: "model/gltf+json" });
+
+      downloadGltfLink.href = URL.createObjectURL(gltfFile);
+      downloadGltfLink.filename = gltfFileName;
+
+      viewerElement.replaceChildren();
+
+      const embeddedViewer = OV.Init3DViewerFromFileList(
+        viewerElement,
+        [gltfFile],
+        {
+          edgeSettings: new OV.EdgeSettings(true, new OV.RGBColor(0, 0, 0), 32),
+          backgroundColor: new OV.RGBAColor(0, 0, 0, 0),
+          environmentSettings: new OV.EnvironmentSettings([
+            "/envmaps/citadella/posx.jpg", "/envmaps/citadella/negx.jpg",
+            "/envmaps/citadella/posy.jpg", "/envmaps/citadella/negy.jpg",
+            "/envmaps/citadella/posz.jpg", "/envmaps/citadella/negz.jpg",
+          ]),
+          onModelLoaded: () => {
+            viewerElement.style.background = null;
+            viewerElement.style.cursor = "grab";
+          },
+        },
+      );
+
+      window["3d-legos-cab-zmbx"] = embeddedViewer;
+    };
+  })();
+</script>
+
+    </main>
+
+    <footer>
+      <nav>
+        <ul class="horizontal small">
+          <li><a rel="me" href="https://github.com/iliazeus">github</a></li>
+          <li><a rel="me" href="https://habr.com/users/iliazeus">habr</a></li>
+          <li><a rel="me" href="https://lor.sh/@iliazeus">mastodon</a></li>
+          <li><a rel="me" href="mailto:iliazeus@proton.me">mailto</a></li>
+          <li>made with <a href="https://www.getzola.org/">Zola</a></li>
+        </ul>
+      </nav>
+    </footer>
+  </body>
+</html>

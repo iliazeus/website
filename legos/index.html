@@ -1,0 +1,790 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="description" content="things I built with Lego. With interactive 3d models. iliazeus" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <link rel="alternate" type="application/atom+xml" href="https://iliazeus.lol/atom.xml">
+
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+    <link rel="manifest" href="/site.webmanifest">
+
+    <link
+      rel="preload" as="style"
+      href="https://code.cdn.mozilla.net/fonts/fira.css"
+      onload="this.onload=null;this.rel='stylesheet'"
+    />
+
+    <!-- prettier-ignore -->
+    <style>.if-not-js { display: none !important }</style>
+    <noscript><style>
+      .if-js { display: none !important }
+      .if-not-js { display: unset !important }
+    </style></noscript>
+
+    <script src="/theme.js"></script>
+    <link rel="stylesheet" href="/style.css" />
+
+    <title>things I built with Lego | iliazeus</title>
+  </head>
+
+  <body>
+    <a href="#" class="local if-js theme-toggle" style="cursor: pointer; position: absolute; right: 8px; top: 8px">toggle dark theme</a>
+
+    <header>
+      <hgroup>
+        <h1><a href="/" title="go to main page">iliazeus</a></h1>
+        <nav>
+          <ul class="horizontal small">
+            <li><a rel="me" href="https://github.com/iliazeus">github</a></li>
+            <li><a rel="me" href="https://habr.com/users/iliazeus">habr</a></li>
+            <li><a rel="me" href="https://lor.sh/@iliazeus">mastodon</a></li>
+            <li><a rel="me" href="mailto:iliazeus@proton.me">mailto</a></li>
+          </ul>
+        </nav>
+        <p>илья, иль не я</p>
+      </hgroup>
+    </header>
+
+    <main>
+      <hgroup>
+        <h2>things I built with Lego</h2>
+        <p>with interactive 3D models</p>
+      </hgroup>
+
+      <p>All of these are under <a href="https://creativecommons.org/licenses/by-sa/4.0/">CC BY-SA 4.0</a>.</p>
+<h2 id="cab"><a class="anchor" href="#cab" title="link to section">#</a>cab</h2>
+<p>This little cabby was built using parts from the <a href="https://brickset.com/sets/11014-1/Bricks-and-Wheels">Bricks and Wheels set</a>.</p>
+<figure class="lego-3d border">
+  <div
+    id="3d-cab-zmbx"
+    class="online_3d_viewer"
+     style="cursor: pointer; background: no-repeat center/100% url(cab.png)" 
+  ></div>
+
+  <div class="if-js"><small>
+    model preview powered by <a href="https://github.com/kovacsv/Online3DViewer">Online 3D Viewer</a>,
+    <br /> using my <a href="https://github.com/iliazeus/zmbx2gltf">Mecabricks-to-glTF converter</a>
+  </small></div>
+
+  <div class="if-not-js"><small>Enable JavaScript for interactive 3D model preview and glTF download.</small></div>
+
+  <div>
+    <small>download: <a href="cab.zmbx" download>zmbx (Mecabricks)</a><span class="if-js">,
+    <a style="cursor: pointer" id="download-gltf-cab-zmbx" download>glTF</a></span>.</small>
+  </div>
+</figure>
+
+<script>
+  (() => {
+    const downloadGltfLink = document.getElementById("download-gltf-cab-zmbx");
+    const viewerElement = document.getElementById("3d-cab-zmbx");
+
+    viewerElement.style.cursor = "pointer";
+    viewerElement.innerText = "Click the image to load and view the 3D model.";
+
+    viewerElement.onclick = initViewer;
+    downloadGltfLink.onclick = async () => {
+      await initViewer();
+      downloadGltfLink.click();
+    };
+
+    async function initViewer() {
+      viewerElement.onclick = null;
+      downloadGltfLink.onclick = null;
+
+      viewerElement.innerText = "Loading scripts...";
+
+      let o3dvScript = document.getElementById("o3dv-script");
+      let zmbx2gltfScript = document.getElementById("zmbx2gltf-script");
+
+      await Promise.all([
+        o3dvScript || new Promise((cb) => {
+          o3dvScript = Object.assign(document.createElement("script"), {
+            id: "o3dv-script",
+            async: true,
+            src: "/o3dv-0.8.22.min.js",
+          });
+          o3dvScript.onload = cb;
+          document.body.appendChild(o3dvScript);
+        }),
+        zmbx2gltfScript || new Promise((cb) => {
+          zmbx2gltfScript = Object.assign(document.createElement("script"), {
+            id: "zmbx2gltf-script",
+            async: true,
+            src: "/zmbx2gltf-0.2.1.bundle.js",
+          });
+          zmbx2gltfScript.onload = cb;
+          document.body.appendChild(zmbx2gltfScript);
+        }),
+      ]);
+
+      viewerElement.innerText = "Loading model...";
+
+      const zmbxBlob = await (await fetch("cab.zmbx")).blob();
+      const zmbxFileName = "cab.zmbx".split("/").pop();
+
+      const gltf = await Zmbx2Gltf.convertZmbxToGltf(zmbxBlob);
+      const gltfFileName = zmbxFileName.replace(".zmbx", ".gltf");
+      const gltfFile = new File([JSON.stringify(gltf)], gltfFileName, { type: "model/gltf+json" });
+
+      downloadGltfLink.href = URL.createObjectURL(gltfFile);
+      downloadGltfLink.filename = gltfFileName;
+
+      viewerElement.replaceChildren();
+
+      const embeddedViewer = OV.Init3DViewerFromFileList(
+        viewerElement,
+        [gltfFile],
+        {
+          edgeSettings: new OV.EdgeSettings(true, new OV.RGBColor(0, 0, 0), 32),
+          backgroundColor: new OV.RGBAColor(0, 0, 0, 0),
+          environmentSettings: new OV.EnvironmentSettings([
+            "/envmaps/citadella/posx.jpg", "/envmaps/citadella/negx.jpg",
+            "/envmaps/citadella/posy.jpg", "/envmaps/citadella/negy.jpg",
+            "/envmaps/citadella/posz.jpg", "/envmaps/citadella/negz.jpg",
+          ]),
+          onModelLoaded: () => {
+            viewerElement.style.background = null;
+            viewerElement.style.cursor = "grab";
+          },
+        },
+      );
+
+      window["3d-cab-zmbx"] = embeddedViewer;
+    };
+  })();
+</script>
+<h2 id="cat"><a class="anchor" href="#cat" title="link to section">#</a>cat</h2>
+<p>This black-and-white cat was built using parts from the <a href="https://brickset.com/sets/11014-1/Bricks-and-Wheels">Bricks and Wheels set</a>.</p>
+<figure class="lego-3d border">
+  <div
+    id="3d-cat-zmbx"
+    class="online_3d_viewer"
+     style="cursor: pointer; background: no-repeat center/100% url(cat.png)" 
+  ></div>
+
+  <div class="if-js"><small>
+    model preview powered by <a href="https://github.com/kovacsv/Online3DViewer">Online 3D Viewer</a>,
+    <br /> using my <a href="https://github.com/iliazeus/zmbx2gltf">Mecabricks-to-glTF converter</a>
+  </small></div>
+
+  <div class="if-not-js"><small>Enable JavaScript for interactive 3D model preview and glTF download.</small></div>
+
+  <div>
+    <small>download: <a href="cat.zmbx" download>zmbx (Mecabricks)</a><span class="if-js">,
+    <a style="cursor: pointer" id="download-gltf-cat-zmbx" download>glTF</a></span>.</small>
+  </div>
+</figure>
+
+<script>
+  (() => {
+    const downloadGltfLink = document.getElementById("download-gltf-cat-zmbx");
+    const viewerElement = document.getElementById("3d-cat-zmbx");
+
+    viewerElement.style.cursor = "pointer";
+    viewerElement.innerText = "Click the image to load and view the 3D model.";
+
+    viewerElement.onclick = initViewer;
+    downloadGltfLink.onclick = async () => {
+      await initViewer();
+      downloadGltfLink.click();
+    };
+
+    async function initViewer() {
+      viewerElement.onclick = null;
+      downloadGltfLink.onclick = null;
+
+      viewerElement.innerText = "Loading scripts...";
+
+      let o3dvScript = document.getElementById("o3dv-script");
+      let zmbx2gltfScript = document.getElementById("zmbx2gltf-script");
+
+      await Promise.all([
+        o3dvScript || new Promise((cb) => {
+          o3dvScript = Object.assign(document.createElement("script"), {
+            id: "o3dv-script",
+            async: true,
+            src: "/o3dv-0.8.22.min.js",
+          });
+          o3dvScript.onload = cb;
+          document.body.appendChild(o3dvScript);
+        }),
+        zmbx2gltfScript || new Promise((cb) => {
+          zmbx2gltfScript = Object.assign(document.createElement("script"), {
+            id: "zmbx2gltf-script",
+            async: true,
+            src: "/zmbx2gltf-0.2.1.bundle.js",
+          });
+          zmbx2gltfScript.onload = cb;
+          document.body.appendChild(zmbx2gltfScript);
+        }),
+      ]);
+
+      viewerElement.innerText = "Loading model...";
+
+      const zmbxBlob = await (await fetch("cat.zmbx")).blob();
+      const zmbxFileName = "cat.zmbx".split("/").pop();
+
+      const gltf = await Zmbx2Gltf.convertZmbxToGltf(zmbxBlob);
+      const gltfFileName = zmbxFileName.replace(".zmbx", ".gltf");
+      const gltfFile = new File([JSON.stringify(gltf)], gltfFileName, { type: "model/gltf+json" });
+
+      downloadGltfLink.href = URL.createObjectURL(gltfFile);
+      downloadGltfLink.filename = gltfFileName;
+
+      viewerElement.replaceChildren();
+
+      const embeddedViewer = OV.Init3DViewerFromFileList(
+        viewerElement,
+        [gltfFile],
+        {
+          edgeSettings: new OV.EdgeSettings(true, new OV.RGBColor(0, 0, 0), 32),
+          backgroundColor: new OV.RGBAColor(0, 0, 0, 0),
+          environmentSettings: new OV.EnvironmentSettings([
+            "/envmaps/citadella/posx.jpg", "/envmaps/citadella/negx.jpg",
+            "/envmaps/citadella/posy.jpg", "/envmaps/citadella/negy.jpg",
+            "/envmaps/citadella/posz.jpg", "/envmaps/citadella/negz.jpg",
+          ]),
+          onModelLoaded: () => {
+            viewerElement.style.background = null;
+            viewerElement.style.cursor = "grab";
+          },
+        },
+      );
+
+      window["3d-cat-zmbx"] = embeddedViewer;
+    };
+  })();
+</script>
+<h2 id="ducks"><a class="anchor" href="#ducks" title="link to section">#</a>ducks</h2>
+<p>These duckies were built using parts from the <a href="https://brickset.com/sets/11014-1/Bricks-and-Wheels">Bricks and Wheels set</a>.</p>
+<figure class="lego-3d border">
+  <div
+    id="3d-ducks-zmbx"
+    class="online_3d_viewer"
+     style="cursor: pointer; background: no-repeat center/100% url(ducks.png)" 
+  ></div>
+
+  <div class="if-js"><small>
+    model preview powered by <a href="https://github.com/kovacsv/Online3DViewer">Online 3D Viewer</a>,
+    <br /> using my <a href="https://github.com/iliazeus/zmbx2gltf">Mecabricks-to-glTF converter</a>
+  </small></div>
+
+  <div class="if-not-js"><small>Enable JavaScript for interactive 3D model preview and glTF download.</small></div>
+
+  <div>
+    <small>download: <a href="ducks.zmbx" download>zmbx (Mecabricks)</a><span class="if-js">,
+    <a style="cursor: pointer" id="download-gltf-ducks-zmbx" download>glTF</a></span>.</small>
+  </div>
+</figure>
+
+<script>
+  (() => {
+    const downloadGltfLink = document.getElementById("download-gltf-ducks-zmbx");
+    const viewerElement = document.getElementById("3d-ducks-zmbx");
+
+    viewerElement.style.cursor = "pointer";
+    viewerElement.innerText = "Click the image to load and view the 3D model.";
+
+    viewerElement.onclick = initViewer;
+    downloadGltfLink.onclick = async () => {
+      await initViewer();
+      downloadGltfLink.click();
+    };
+
+    async function initViewer() {
+      viewerElement.onclick = null;
+      downloadGltfLink.onclick = null;
+
+      viewerElement.innerText = "Loading scripts...";
+
+      let o3dvScript = document.getElementById("o3dv-script");
+      let zmbx2gltfScript = document.getElementById("zmbx2gltf-script");
+
+      await Promise.all([
+        o3dvScript || new Promise((cb) => {
+          o3dvScript = Object.assign(document.createElement("script"), {
+            id: "o3dv-script",
+            async: true,
+            src: "/o3dv-0.8.22.min.js",
+          });
+          o3dvScript.onload = cb;
+          document.body.appendChild(o3dvScript);
+        }),
+        zmbx2gltfScript || new Promise((cb) => {
+          zmbx2gltfScript = Object.assign(document.createElement("script"), {
+            id: "zmbx2gltf-script",
+            async: true,
+            src: "/zmbx2gltf-0.2.1.bundle.js",
+          });
+          zmbx2gltfScript.onload = cb;
+          document.body.appendChild(zmbx2gltfScript);
+        }),
+      ]);
+
+      viewerElement.innerText = "Loading model...";
+
+      const zmbxBlob = await (await fetch("ducks.zmbx")).blob();
+      const zmbxFileName = "ducks.zmbx".split("/").pop();
+
+      const gltf = await Zmbx2Gltf.convertZmbxToGltf(zmbxBlob);
+      const gltfFileName = zmbxFileName.replace(".zmbx", ".gltf");
+      const gltfFile = new File([JSON.stringify(gltf)], gltfFileName, { type: "model/gltf+json" });
+
+      downloadGltfLink.href = URL.createObjectURL(gltfFile);
+      downloadGltfLink.filename = gltfFileName;
+
+      viewerElement.replaceChildren();
+
+      const embeddedViewer = OV.Init3DViewerFromFileList(
+        viewerElement,
+        [gltfFile],
+        {
+          edgeSettings: new OV.EdgeSettings(true, new OV.RGBColor(0, 0, 0), 32),
+          backgroundColor: new OV.RGBAColor(0, 0, 0, 0),
+          environmentSettings: new OV.EnvironmentSettings([
+            "/envmaps/citadella/posx.jpg", "/envmaps/citadella/negx.jpg",
+            "/envmaps/citadella/posy.jpg", "/envmaps/citadella/negy.jpg",
+            "/envmaps/citadella/posz.jpg", "/envmaps/citadella/negz.jpg",
+          ]),
+          onModelLoaded: () => {
+            viewerElement.style.background = null;
+            viewerElement.style.cursor = "grab";
+          },
+        },
+      );
+
+      window["3d-ducks-zmbx"] = embeddedViewer;
+    };
+  })();
+</script>
+<h2 id="micro-bus"><a class="anchor" href="#micro-bus" title="link to section">#</a>micro bus</h2>
+<p>This little blue bus was built using parts from the <a href="https://brickset.com/sets/11014-1/Bricks-and-Wheels">Bricks and Wheels set</a>.</p>
+<figure class="lego-3d border">
+  <div
+    id="3d-micro-bus-zmbx"
+    class="online_3d_viewer"
+     style="cursor: pointer; background: no-repeat center/100% url(micro-bus.png)" 
+  ></div>
+
+  <div class="if-js"><small>
+    model preview powered by <a href="https://github.com/kovacsv/Online3DViewer">Online 3D Viewer</a>,
+    <br /> using my <a href="https://github.com/iliazeus/zmbx2gltf">Mecabricks-to-glTF converter</a>
+  </small></div>
+
+  <div class="if-not-js"><small>Enable JavaScript for interactive 3D model preview and glTF download.</small></div>
+
+  <div>
+    <small>download: <a href="micro-bus.zmbx" download>zmbx (Mecabricks)</a><span class="if-js">,
+    <a style="cursor: pointer" id="download-gltf-micro-bus-zmbx" download>glTF</a></span>.</small>
+  </div>
+</figure>
+
+<script>
+  (() => {
+    const downloadGltfLink = document.getElementById("download-gltf-micro-bus-zmbx");
+    const viewerElement = document.getElementById("3d-micro-bus-zmbx");
+
+    viewerElement.style.cursor = "pointer";
+    viewerElement.innerText = "Click the image to load and view the 3D model.";
+
+    viewerElement.onclick = initViewer;
+    downloadGltfLink.onclick = async () => {
+      await initViewer();
+      downloadGltfLink.click();
+    };
+
+    async function initViewer() {
+      viewerElement.onclick = null;
+      downloadGltfLink.onclick = null;
+
+      viewerElement.innerText = "Loading scripts...";
+
+      let o3dvScript = document.getElementById("o3dv-script");
+      let zmbx2gltfScript = document.getElementById("zmbx2gltf-script");
+
+      await Promise.all([
+        o3dvScript || new Promise((cb) => {
+          o3dvScript = Object.assign(document.createElement("script"), {
+            id: "o3dv-script",
+            async: true,
+            src: "/o3dv-0.8.22.min.js",
+          });
+          o3dvScript.onload = cb;
+          document.body.appendChild(o3dvScript);
+        }),
+        zmbx2gltfScript || new Promise((cb) => {
+          zmbx2gltfScript = Object.assign(document.createElement("script"), {
+            id: "zmbx2gltf-script",
+            async: true,
+            src: "/zmbx2gltf-0.2.1.bundle.js",
+          });
+          zmbx2gltfScript.onload = cb;
+          document.body.appendChild(zmbx2gltfScript);
+        }),
+      ]);
+
+      viewerElement.innerText = "Loading model...";
+
+      const zmbxBlob = await (await fetch("micro-bus.zmbx")).blob();
+      const zmbxFileName = "micro-bus.zmbx".split("/").pop();
+
+      const gltf = await Zmbx2Gltf.convertZmbxToGltf(zmbxBlob);
+      const gltfFileName = zmbxFileName.replace(".zmbx", ".gltf");
+      const gltfFile = new File([JSON.stringify(gltf)], gltfFileName, { type: "model/gltf+json" });
+
+      downloadGltfLink.href = URL.createObjectURL(gltfFile);
+      downloadGltfLink.filename = gltfFileName;
+
+      viewerElement.replaceChildren();
+
+      const embeddedViewer = OV.Init3DViewerFromFileList(
+        viewerElement,
+        [gltfFile],
+        {
+          edgeSettings: new OV.EdgeSettings(true, new OV.RGBColor(0, 0, 0), 32),
+          backgroundColor: new OV.RGBAColor(0, 0, 0, 0),
+          environmentSettings: new OV.EnvironmentSettings([
+            "/envmaps/citadella/posx.jpg", "/envmaps/citadella/negx.jpg",
+            "/envmaps/citadella/posy.jpg", "/envmaps/citadella/negy.jpg",
+            "/envmaps/citadella/posz.jpg", "/envmaps/citadella/negz.jpg",
+          ]),
+          onModelLoaded: () => {
+            viewerElement.style.background = null;
+            viewerElement.style.cursor = "grab";
+          },
+        },
+      );
+
+      window["3d-micro-bus-zmbx"] = embeddedViewer;
+    };
+  })();
+</script>
+<h2 id="open-wheel-race-car"><a class="anchor" href="#open-wheel-race-car" title="link to section">#</a>open-wheel race car</h2>
+<p>This race car was built using parts from the <a href="https://brickset.com/sets/11014-1/Bricks-and-Wheels">Bricks and Wheels set</a>.</p>
+<figure class="lego-3d border">
+  <div
+    id="3d-open-wheel-race-car-zmbx"
+    class="online_3d_viewer"
+     style="cursor: pointer; background: no-repeat center/100% url(open-wheel-race-car.png)" 
+  ></div>
+
+  <div class="if-js"><small>
+    model preview powered by <a href="https://github.com/kovacsv/Online3DViewer">Online 3D Viewer</a>,
+    <br /> using my <a href="https://github.com/iliazeus/zmbx2gltf">Mecabricks-to-glTF converter</a>
+  </small></div>
+
+  <div class="if-not-js"><small>Enable JavaScript for interactive 3D model preview and glTF download.</small></div>
+
+  <div>
+    <small>download: <a href="open-wheel-race-car.zmbx" download>zmbx (Mecabricks)</a><span class="if-js">,
+    <a style="cursor: pointer" id="download-gltf-open-wheel-race-car-zmbx" download>glTF</a></span>.</small>
+  </div>
+</figure>
+
+<script>
+  (() => {
+    const downloadGltfLink = document.getElementById("download-gltf-open-wheel-race-car-zmbx");
+    const viewerElement = document.getElementById("3d-open-wheel-race-car-zmbx");
+
+    viewerElement.style.cursor = "pointer";
+    viewerElement.innerText = "Click the image to load and view the 3D model.";
+
+    viewerElement.onclick = initViewer;
+    downloadGltfLink.onclick = async () => {
+      await initViewer();
+      downloadGltfLink.click();
+    };
+
+    async function initViewer() {
+      viewerElement.onclick = null;
+      downloadGltfLink.onclick = null;
+
+      viewerElement.innerText = "Loading scripts...";
+
+      let o3dvScript = document.getElementById("o3dv-script");
+      let zmbx2gltfScript = document.getElementById("zmbx2gltf-script");
+
+      await Promise.all([
+        o3dvScript || new Promise((cb) => {
+          o3dvScript = Object.assign(document.createElement("script"), {
+            id: "o3dv-script",
+            async: true,
+            src: "/o3dv-0.8.22.min.js",
+          });
+          o3dvScript.onload = cb;
+          document.body.appendChild(o3dvScript);
+        }),
+        zmbx2gltfScript || new Promise((cb) => {
+          zmbx2gltfScript = Object.assign(document.createElement("script"), {
+            id: "zmbx2gltf-script",
+            async: true,
+            src: "/zmbx2gltf-0.2.1.bundle.js",
+          });
+          zmbx2gltfScript.onload = cb;
+          document.body.appendChild(zmbx2gltfScript);
+        }),
+      ]);
+
+      viewerElement.innerText = "Loading model...";
+
+      const zmbxBlob = await (await fetch("open-wheel-race-car.zmbx")).blob();
+      const zmbxFileName = "open-wheel-race-car.zmbx".split("/").pop();
+
+      const gltf = await Zmbx2Gltf.convertZmbxToGltf(zmbxBlob);
+      const gltfFileName = zmbxFileName.replace(".zmbx", ".gltf");
+      const gltfFile = new File([JSON.stringify(gltf)], gltfFileName, { type: "model/gltf+json" });
+
+      downloadGltfLink.href = URL.createObjectURL(gltfFile);
+      downloadGltfLink.filename = gltfFileName;
+
+      viewerElement.replaceChildren();
+
+      const embeddedViewer = OV.Init3DViewerFromFileList(
+        viewerElement,
+        [gltfFile],
+        {
+          edgeSettings: new OV.EdgeSettings(true, new OV.RGBColor(0, 0, 0), 32),
+          backgroundColor: new OV.RGBAColor(0, 0, 0, 0),
+          environmentSettings: new OV.EnvironmentSettings([
+            "/envmaps/citadella/posx.jpg", "/envmaps/citadella/negx.jpg",
+            "/envmaps/citadella/posy.jpg", "/envmaps/citadella/negy.jpg",
+            "/envmaps/citadella/posz.jpg", "/envmaps/citadella/negz.jpg",
+          ]),
+          onModelLoaded: () => {
+            viewerElement.style.background = null;
+            viewerElement.style.cursor = "grab";
+          },
+        },
+      );
+
+      window["3d-open-wheel-race-car-zmbx"] = embeddedViewer;
+    };
+  })();
+</script>
+<h2 id="vespa"><a class="anchor" href="#vespa" title="link to section">#</a>vespa</h2>
+<p>This motor scooter was built using parts from the <a href="https://brickset.com/sets/11014-1/Bricks-and-Wheels">Bricks and Wheels set</a>.</p>
+<figure class="lego-3d border">
+  <div
+    id="3d-vespa-zmbx"
+    class="online_3d_viewer"
+     style="cursor: pointer; background: no-repeat center/100% url(vespa.png)" 
+  ></div>
+
+  <div class="if-js"><small>
+    model preview powered by <a href="https://github.com/kovacsv/Online3DViewer">Online 3D Viewer</a>,
+    <br /> using my <a href="https://github.com/iliazeus/zmbx2gltf">Mecabricks-to-glTF converter</a>
+  </small></div>
+
+  <div class="if-not-js"><small>Enable JavaScript for interactive 3D model preview and glTF download.</small></div>
+
+  <div>
+    <small>download: <a href="vespa.zmbx" download>zmbx (Mecabricks)</a><span class="if-js">,
+    <a style="cursor: pointer" id="download-gltf-vespa-zmbx" download>glTF</a></span>.</small>
+  </div>
+</figure>
+
+<script>
+  (() => {
+    const downloadGltfLink = document.getElementById("download-gltf-vespa-zmbx");
+    const viewerElement = document.getElementById("3d-vespa-zmbx");
+
+    viewerElement.style.cursor = "pointer";
+    viewerElement.innerText = "Click the image to load and view the 3D model.";
+
+    viewerElement.onclick = initViewer;
+    downloadGltfLink.onclick = async () => {
+      await initViewer();
+      downloadGltfLink.click();
+    };
+
+    async function initViewer() {
+      viewerElement.onclick = null;
+      downloadGltfLink.onclick = null;
+
+      viewerElement.innerText = "Loading scripts...";
+
+      let o3dvScript = document.getElementById("o3dv-script");
+      let zmbx2gltfScript = document.getElementById("zmbx2gltf-script");
+
+      await Promise.all([
+        o3dvScript || new Promise((cb) => {
+          o3dvScript = Object.assign(document.createElement("script"), {
+            id: "o3dv-script",
+            async: true,
+            src: "/o3dv-0.8.22.min.js",
+          });
+          o3dvScript.onload = cb;
+          document.body.appendChild(o3dvScript);
+        }),
+        zmbx2gltfScript || new Promise((cb) => {
+          zmbx2gltfScript = Object.assign(document.createElement("script"), {
+            id: "zmbx2gltf-script",
+            async: true,
+            src: "/zmbx2gltf-0.2.1.bundle.js",
+          });
+          zmbx2gltfScript.onload = cb;
+          document.body.appendChild(zmbx2gltfScript);
+        }),
+      ]);
+
+      viewerElement.innerText = "Loading model...";
+
+      const zmbxBlob = await (await fetch("vespa.zmbx")).blob();
+      const zmbxFileName = "vespa.zmbx".split("/").pop();
+
+      const gltf = await Zmbx2Gltf.convertZmbxToGltf(zmbxBlob);
+      const gltfFileName = zmbxFileName.replace(".zmbx", ".gltf");
+      const gltfFile = new File([JSON.stringify(gltf)], gltfFileName, { type: "model/gltf+json" });
+
+      downloadGltfLink.href = URL.createObjectURL(gltfFile);
+      downloadGltfLink.filename = gltfFileName;
+
+      viewerElement.replaceChildren();
+
+      const embeddedViewer = OV.Init3DViewerFromFileList(
+        viewerElement,
+        [gltfFile],
+        {
+          edgeSettings: new OV.EdgeSettings(true, new OV.RGBColor(0, 0, 0), 32),
+          backgroundColor: new OV.RGBAColor(0, 0, 0, 0),
+          environmentSettings: new OV.EnvironmentSettings([
+            "/envmaps/citadella/posx.jpg", "/envmaps/citadella/negx.jpg",
+            "/envmaps/citadella/posy.jpg", "/envmaps/citadella/negy.jpg",
+            "/envmaps/citadella/posz.jpg", "/envmaps/citadella/negz.jpg",
+          ]),
+          onModelLoaded: () => {
+            viewerElement.style.background = null;
+            viewerElement.style.cursor = "grab";
+          },
+        },
+      );
+
+      window["3d-vespa-zmbx"] = embeddedViewer;
+    };
+  })();
+</script>
+<h2 id="yellow-plane"><a class="anchor" href="#yellow-plane" title="link to section">#</a>yellow plane</h2>
+<p>This plane bus was built using parts from the <a href="https://brickset.com/sets/11014-1/Bricks-and-Wheels">Bricks and Wheels set</a>.</p>
+<figure class="lego-3d border">
+  <div
+    id="3d-yellow-plane-zmbx"
+    class="online_3d_viewer"
+     style="cursor: pointer; background: no-repeat center/100% url(yellow-plane.png)" 
+  ></div>
+
+  <div class="if-js"><small>
+    model preview powered by <a href="https://github.com/kovacsv/Online3DViewer">Online 3D Viewer</a>,
+    <br /> using my <a href="https://github.com/iliazeus/zmbx2gltf">Mecabricks-to-glTF converter</a>
+  </small></div>
+
+  <div class="if-not-js"><small>Enable JavaScript for interactive 3D model preview and glTF download.</small></div>
+
+  <div>
+    <small>download: <a href="yellow-plane.zmbx" download>zmbx (Mecabricks)</a><span class="if-js">,
+    <a style="cursor: pointer" id="download-gltf-yellow-plane-zmbx" download>glTF</a></span>.</small>
+  </div>
+</figure>
+
+<script>
+  (() => {
+    const downloadGltfLink = document.getElementById("download-gltf-yellow-plane-zmbx");
+    const viewerElement = document.getElementById("3d-yellow-plane-zmbx");
+
+    viewerElement.style.cursor = "pointer";
+    viewerElement.innerText = "Click the image to load and view the 3D model.";
+
+    viewerElement.onclick = initViewer;
+    downloadGltfLink.onclick = async () => {
+      await initViewer();
+      downloadGltfLink.click();
+    };
+
+    async function initViewer() {
+      viewerElement.onclick = null;
+      downloadGltfLink.onclick = null;
+
+      viewerElement.innerText = "Loading scripts...";
+
+      let o3dvScript = document.getElementById("o3dv-script");
+      let zmbx2gltfScript = document.getElementById("zmbx2gltf-script");
+
+      await Promise.all([
+        o3dvScript || new Promise((cb) => {
+          o3dvScript = Object.assign(document.createElement("script"), {
+            id: "o3dv-script",
+            async: true,
+            src: "/o3dv-0.8.22.min.js",
+          });
+          o3dvScript.onload = cb;
+          document.body.appendChild(o3dvScript);
+        }),
+        zmbx2gltfScript || new Promise((cb) => {
+          zmbx2gltfScript = Object.assign(document.createElement("script"), {
+            id: "zmbx2gltf-script",
+            async: true,
+            src: "/zmbx2gltf-0.2.1.bundle.js",
+          });
+          zmbx2gltfScript.onload = cb;
+          document.body.appendChild(zmbx2gltfScript);
+        }),
+      ]);
+
+      viewerElement.innerText = "Loading model...";
+
+      const zmbxBlob = await (await fetch("yellow-plane.zmbx")).blob();
+      const zmbxFileName = "yellow-plane.zmbx".split("/").pop();
+
+      const gltf = await Zmbx2Gltf.convertZmbxToGltf(zmbxBlob);
+      const gltfFileName = zmbxFileName.replace(".zmbx", ".gltf");
+      const gltfFile = new File([JSON.stringify(gltf)], gltfFileName, { type: "model/gltf+json" });
+
+      downloadGltfLink.href = URL.createObjectURL(gltfFile);
+      downloadGltfLink.filename = gltfFileName;
+
+      viewerElement.replaceChildren();
+
+      const embeddedViewer = OV.Init3DViewerFromFileList(
+        viewerElement,
+        [gltfFile],
+        {
+          edgeSettings: new OV.EdgeSettings(true, new OV.RGBColor(0, 0, 0), 32),
+          backgroundColor: new OV.RGBAColor(0, 0, 0, 0),
+          environmentSettings: new OV.EnvironmentSettings([
+            "/envmaps/citadella/posx.jpg", "/envmaps/citadella/negx.jpg",
+            "/envmaps/citadella/posy.jpg", "/envmaps/citadella/negy.jpg",
+            "/envmaps/citadella/posz.jpg", "/envmaps/citadella/negz.jpg",
+          ]),
+          onModelLoaded: () => {
+            viewerElement.style.background = null;
+            viewerElement.style.cursor = "grab";
+          },
+        },
+      );
+
+      window["3d-yellow-plane-zmbx"] = embeddedViewer;
+    };
+  })();
+</script>
+
+
+      
+    </main>
+
+    <footer>
+      <nav>
+        <ul class="horizontal small">
+          <li><a rel="me" href="https://github.com/iliazeus">github</a></li>
+          <li><a rel="me" href="https://habr.com/users/iliazeus">habr</a></li>
+          <li><a rel="me" href="https://lor.sh/@iliazeus">mastodon</a></li>
+          <li><a rel="me" href="mailto:iliazeus@proton.me">mailto</a></li>
+          <li>made with <a href="https://www.getzola.org/">Zola</a></li>
+        </ul>
+      </nav>
+    </footer>
+  </body>
+</html>
